@@ -1,5 +1,6 @@
-# Planned workflows
+# Member1 workflows
 
-เพิ่ม ci.yml และ release.yml หลังมี build/test/Docker configuration ที่รันได้จริง ดู ../../docs/deployment-plan.md
+- member1-ci.yml: Tle/main/PR changes for member1; typecheck, tests, Docker build and health smoke
+- member1-release.yml: member1-vX.Y.Z tags; tests and container smoke before GHCR publication
 
-ยังไม่มี GitHub Actions workflow ที่ execute ได้
+ยังไม่ execute บน GitHub และยังไม่ publish registry release ส่วน group-wide integration/release ยังต้องเพิ่มเมื่อครบ 5 services

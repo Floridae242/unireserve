@@ -4,7 +4,7 @@ Campus Room & Equipment Booking Platform — โครงสร้างเร�
 
 ## สถานะ
 
-Repository นี้มีโครงสร้างโฟลเดอร์และเอกสารวางแผนเท่านั้น ยังไม่มี API, dependencies, Docker configuration หรือ CI/CD ที่รันได้ และยังไม่มีผลทดสอบหรือ release
+บน branch `Tle` มี Authentication Service ของ member1 พร้อม API, tests, Docker และ CI definition แล้ว ดู [member1 README](member1/README.md) ส่วน member2–5 ยังเป็น scaffold ยังไม่มี group integration หรือ registry release
 
 ## เป้าหมาย MVP
 
@@ -62,10 +62,10 @@ unireserve/
 5. เพิ่ม Robot Framework integration tests และ GitHub Actions
 6. ตรวจทุกขั้นแล้วจึง publish images และ release
 
-ยังไม่มีคำสั่ง install/start/test ที่ใช้งานได้ใน scaffold นี้
+สำหรับ member1 ใช้ `cd member1`, `npm ci`, `npm test`, `npm run dev` ส่วน service อื่นยังไม่มีคำสั่ง runtime
 
 ## ขอบเขตและแหล่งข้อมูล
 
-แผนนี้ดัดแปลงจาก `deep-research-report-7.md` ที่ผู้ใช้ให้มา การอ้างอิง PDF ในรายงานยังไม่ได้ตรวจยืนยันกับต้นฉบับ ควรยืนยันว่าอาจารย์ยอมรับ monorepo ที่มี 5 projects ก่อนส่งงาน
+แผนนี้ดัดแปลงจาก `deep-research-report-7.md` ที่ผู้ใช้ให้มา สำหรับ member1 ได้อ่าน `deploy2-2/งานกลุ่ม.pdf`, part2, software testing และ starter โดยตรงแล้ว ควรยืนยันว่าอาจารย์ยอมรับ monorepo ที่มี 5 projects ก่อนส่งงาน
 
 ห้าม commit secrets หรือข้อมูลส่วนบุคคล ใช้ environment variables และ dummy test data

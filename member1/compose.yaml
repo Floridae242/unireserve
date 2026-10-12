@@ -1,0 +1,8 @@
+services:
+  auth:
+    build: .
+    ports:
+      - "127.0.0.1:3001:3001"
+    environment:
+      PORT: 3001
+      TOKEN_TTL_SECONDS: 3600
