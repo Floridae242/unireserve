@@ -19,8 +19,21 @@ export function httpVerifier(authUrl: string, timeoutMs = 3000): VerifyToken {
     }
     if (response.status === 401) throw new NotificationError(401, "INVALID_TOKEN");
     if (!response.ok) throw new NotificationError(503, "AUTH_UNAVAILABLE");
-    const body = await response.json() as { user?: AuthUser };
-    if (!body.user?.id) throw new NotificationError(503, "AUTH_UNAVAILABLE");
-    return body.user;
+    try {
+      const body: unknown = await response.json();
+      if (!body || typeof body !== "object" || !("user" in body)) {
+        throw new Error("Invalid Auth response");
+      }
+      const user = body.user;
+      if (!user || typeof user !== "object" ||
+          !("id" in user) || typeof user.id !== "string" || !user.id.trim() ||
+          !("email" in user) || typeof user.email !== "string" || !user.email.trim() ||
+          !("role" in user) || typeof user.role !== "string" || !user.role.trim()) {
+        throw new Error("Invalid Auth user");
+      }
+      return { id: user.id, email: user.email, role: user.role };
+    } catch {
+      throw new NotificationError(503, "AUTH_UNAVAILABLE");
+    }
   };
 }

@@ -64,7 +64,7 @@ CI: `.github/workflows/member1-ci.yml` ทำ install → typecheck → tests �
 
 ## ข้อจำกัดของรุ่นทดลอง
 
-Users/sessions อยู่ใน memory และหายเมื่อ restart ไม่มี shared persistence/หลาย replicas; เก็บ password ด้วย salted scrypt และเก็บเฉพาะ token digest ฝั่ง server จำกัด `/auth` 30 requests/min/IP ด้วย per-process store สำหรับ demo เท่านั้น ก่อนใช้งานจริงต้องมี database, shared rate limiter, HTTPS, session lifecycle และ admin provisioning
+Users/sessions อยู่ใน memory และหายเมื่อ restart ไม่มี shared persistence/หลาย replicas; เก็บ password ด้วย salted scrypt และเก็บเฉพาะ token digest ฝั่ง server จำกัด `/auth/register` และ `/auth/login` รวม 30 requests/min/IP; `/auth/verify` ใช้ budget แยก 300 requests/min/IP ด้วย per-process store สำหรับ demo เท่านั้น ก่อนใช้งานจริงต้องมี database, shared rate limiter, HTTPS, session lifecycle และ admin provisioning
 
 ## แหล่งอ้างอิงวิชา
 

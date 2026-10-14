@@ -7,7 +7,10 @@ export function createApp(service = new AuthService()) {
   app.disable("x-powered-by");
   app.use((_req, res, next) => { res.set("Cache-Control", "no-store"); next(); });
   app.get("/health", (_req, res) => res.json({ status: "ok", service: "auth" }));
-  app.use("/auth", rateLimit({ windowMs: 60_000, limit: 30, standardHeaders: "draft-8", legacyHeaders: false,
+  app.use(["/auth/register", "/auth/login"], rateLimit({ windowMs: 60_000, limit: 30, standardHeaders: "draft-8", legacyHeaders: false,
+    message: { error: "TOO_MANY_REQUESTS" } }));
+  // Service-to-service verification has its own budget, independent of login attempts.
+  app.use("/auth/verify", rateLimit({ windowMs: 60_000, limit: 300, standardHeaders: "draft-8", legacyHeaders: false,
     message: { error: "TOO_MANY_REQUESTS" } }));
   app.use(express.json({ limit: "8kb" }));
   app.post("/auth/register", async (req, res) => res.status(201).json({ user: await service.register(req.body) }));
