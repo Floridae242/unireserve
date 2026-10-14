@@ -14,6 +14,8 @@ docker compose --profile test down
 
 CI: [.github/workflows/integration-tests.yml](../.github/workflows/integration-tests.yml) รันคำสั่งเดียวกันและแนบ `robot-results` เป็น artifact
 
+ผลการรันจริงล่าสุด (วันที่, commit, ผลรายเทสต์, ลิงก์ CI): [test-report.md](test-report.md)
+
 ## โครงสร้าง
 
 | Path | หน้าที่ |
