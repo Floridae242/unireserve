@@ -14,5 +14,6 @@ Branch: folk; executed on local working tree (not committed). Node 24.15.0, Dock
 | Notification container stopped | booking still 201 (notification failure logged) |
 | Fake Resource stopped / Auth container stopped | 503 RESOURCE_UNAVAILABLE / 503 AUTH_UNAVAILABLE |
 | docker compose down (member1, member2, member4) | Containers/networks removed |
+| GitHub Actions Member4 Booking CI on f9dbb8a | Success: [run 38583766557](https://github.com/Floridae242/unireserve/actions/runs/38583766557) |
 
-Not verified: remote GitHub Actions run, real member3 Resource (contract proposed, not implemented), admin flow against real Auth (no admin provisioning yet), Robot Framework suites, persistence across restarts.
+Not verified: real member3 Resource (contract proposed, not implemented), admin flow against real Auth (no admin provisioning yet), Robot Framework suites, persistence across restarts.
