@@ -1,0 +1,11 @@
+services:
+  notification:
+    build: .
+    ports:
+      - "127.0.0.1:3002:3002"
+    environment:
+      PORT: 3002
+      AUTH_URL: http://host.docker.internal:3001
+      SERVICE_KEY: ${SERVICE_KEY:-local-dev-service-key}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
