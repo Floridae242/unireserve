@@ -1,6 +1,6 @@
 # Test specification
 
-ใช้ข้อมูลทดสอบจำลองและ reset isolated test environment ก่อนแต่ละชุด สถานะด้านล่างมาจากการรันจริงล่าสุดใน [automation-tests/test-report.md](../automation-tests/test-report.md) (commit `959fc38`, 2026-10-14 UTC) — อัปเดตเมื่อรันใหม่เท่านั้น
+ใช้ข้อมูลทดสอบจำลองและ reset isolated test environment ก่อนแต่ละชุด สถานะด้านล่างมาจากการรันจริงล่าสุดใน [automation-tests/test-report.md](../automation-tests/test-report.md) (commit `bdc38f5`, 2026-10-14 UTC) — อัปเดตเมื่อรันใหม่เท่านั้น
 
 | ID | Trace | Preconditions / action | Expected | Automated test | Actual (latest run) |
 |---|---|---|---|---|---|
@@ -17,6 +17,6 @@
 
 Unit tests: อย่างน้อย service ละ 1 ตามแผน; เพิ่ม meaningful positive, negative และ boundary cases ตาม logic — ปัจจุบันมีใน member1, member2, member4 (ดู `memberN/test-spec.md` และ CI ของแต่ละ service)
 
-Integration: ทดสอบ Auth → Resource → Booking → Notification และ Review → Booking รวม concurrent booking conflict — ส่วน Auth → Booking → Notification และ concurrent booking (RF-BOOK-01) ผ่านแล้วโดยใช้ Resource stub; Review → Booking ยังไม่มี
+Integration: ทดสอบ Auth → Resource → Booking → Notification และ Review → Booking รวม concurrent booking conflict — ส่วน Auth → Booking → Notification, concurrent booking (RF-BOOK-01) และ Notification ล่ม (RF-BOOK-06..08) ผ่านแล้วโดยใช้ Resource stub; Review → Booking ยังไม่มี
 
 เก็บ actual result, execution date, commit SHA และ test report เมื่อรันจริง ห้ามเติมสถานะผ่านล่วงหน้า

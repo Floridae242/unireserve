@@ -6,13 +6,13 @@
 
 | Item | Value |
 |---|---|
-| Commit | `959fc38` (branch `phlu`) |
-| วันที่รัน (local) | 2026-10-14 19:24 UTC (2026-10-15 02:24 +07) |
+| Commit | `bdc38f5` (branch `phlu`) |
+| วันที่รัน (local) | 2026-10-14 19:40 UTC (2026-10-15 02:40 +07) |
 | คำสั่ง | `docker compose --profile test run --rm --build robot` บน stack ใหม่ (`down` ก่อนรัน) |
 | Environment | Windows 11, Docker 29.8.2; Robot Framework 7.5, RequestsLibrary 0.9.7, Python 3.12 |
-| Services | member1 Auth, member2 Notification, member4 Booking (build จาก source), Resource = **stub** (`stubs/resource-stub.js`) |
-| ผลรวม | **18 tests, 18 passed, 0 failed, 0 skipped** |
-| CI ยืนยัน | [Integration Tests run 38621513298](https://github.com/Floridae242/unireserve/actions/runs/38621513298) — success บน `959fc38` |
+| Services | member1 Auth, member2 Notification, member4 Booking (build จาก source), Resource = **stub** (`stubs/resource-stub.js`); สำหรับ RF-BOOK-06..08 มี Booking เพิ่ม 3 ตัวต่อกับ Notification ที่เสีย (`stubs/notification-500.js`, ที่อยู่ที่ไม่มี service, SERVICE_KEY ผิด) |
+| ผลรวม | **21 tests, 21 passed, 0 failed, 0 skipped** |
+| CI ยืนยัน | รอผล Integration Tests บน `bdc38f5` หลัง push (run ก่อนหน้า: [38621513298](https://github.com/Floridae242/unireserve/actions/runs/38621513298) success บน `959fc38`, 18 tests) |
 
 Report ฉบับเต็ม (`report.html`, `log.html`, `output.xml`) อยู่ใน `results/` ตอนรัน local (ไม่ commit) และใน artifact `robot-results` ของ CI run ข้างต้น
 
@@ -38,6 +38,9 @@ Report ฉบับเต็ม (`report.html`, `log.html`, `output.xml`) อย
 | RF-BOOK-03 Other User Cannot View Or Cancel A Booking | — | Auth, Resource stub, Booking | PASS |
 | RF-BOOK-04 Missing Or Inactive Resource Is Rejected | — | Auth, Resource stub, Booking | PASS |
 | RF-BOOK-05 Booking Requires A Valid Token And Students Cannot Use Admin Endpoints | — | Auth, Booking | PASS |
+| RF-BOOK-06 Notification 500 Is Retried Once And Booking Still Succeeds | — (member4 TS-BOOK-09) | Auth, Resource stub, Booking, Notification 500 stub | PASS |
+| RF-BOOK-07 Unreachable Notification Does Not Block Booking Or Cancel | — (member4 TS-BOOK-09) | Auth, Resource stub, Booking (Notification ต่อไม่ได้) | PASS |
+| RF-BOOK-08 Mismatched Service Key Is Rejected By Notification But Booking Succeeds | — (member4 TS-BOOK-09) | Auth, Resource stub, Booking, Notification | PASS |
 
 ## CI ของแต่ละ service (unit + HTTP tests, Docker build, health)
 
@@ -51,5 +54,6 @@ Report ฉบับเต็ม (`report.html`, `log.html`, `output.xml`) อย
 ## ข้อจำกัดของผลนี้
 
 - Resource เป็น stub ตาม contract ที่ Booking เสนอ (`GET /resources/:id` → `{ resource: { id, name, active } }`) ยังไม่ได้ยืนยันกับ member3 ผล TS-04..07 ต้องรันซ้ำเมื่อมี Resource จริง
-- ยังไม่ได้ทดสอบ: TS-03 (Resource), TS-08..10 (Review), admin flows (Auth ยังสร้าง admin ไม่ได้), กรณี Notification ล่มระหว่าง booking ผ่าน Robot (member4 ตรวจด้วยมือใน `member4/verification.md`)
+- ยังไม่ได้ทดสอบ: TS-03 (Resource), TS-08..10 (Review), admin flows (Auth ยังสร้าง admin ไม่ได้)
+- กรณี Notification ตอบ 4xx แล้ว Booking ต้องไม่ retry: Robot นับจำนวนครั้งไม่ได้เพราะ RF-BOOK-08 ใช้ Notification จริง — ครอบคลุมด้วย unit/HTTP tests ของ member4
 - ข้อมูลทุก service อยู่ใน memory: ไม่ได้ทดสอบ persistence หรือหลาย replicas
