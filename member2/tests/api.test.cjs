@@ -63,3 +63,26 @@ test('IT-NOTI-04 httpVerifier maps Auth responses and outages', async () => {
   } finally { auth.close(); }
   await assert.rejects(httpVerifier('http://127.0.0.1:1', 500)(bearer('a')), { code: 'AUTH_UNAVAILABLE' });
 });
+
+test('IT-NOTI-05 malformed, invalid and timed-out Auth bodies return 503', async () => {
+  for (const mode of ['malformed', 'missing-user', 'wrong-id', 'missing-email', 'missing-role', 'slow']) {
+    const auth = http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      if (mode === 'slow') { res.flushHeaders(); return; }
+      const user = { ...tokens['a'.repeat(64)] };
+      if (mode === 'wrong-id') user.id = 123;
+      if (mode === 'missing-email') delete user.email;
+      if (mode === 'missing-role') delete user.role;
+      res.end(mode === 'malformed' ? '{' : JSON.stringify(mode === 'missing-user' ? {} : { user }));
+    });
+    await new Promise(resolve => auth.listen(0, '127.0.0.1', resolve));
+    try {
+      const app = createApp({ serviceKey, verifyToken: httpVerifier(`http://127.0.0.1:${auth.address().port}`, 200) });
+      const response = await request(app).get('/notifications/user/user-1').set('Authorization', bearer('a')).expect(503);
+      assert.equal(response.body.error, 'AUTH_UNAVAILABLE', mode);
+    } finally {
+      auth.closeAllConnections();
+      await new Promise(resolve => auth.close(resolve));
+    }
+  }
+});

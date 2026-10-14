@@ -11,5 +11,6 @@
 | TS-NOTI-07 | REQ-NOTI-01 | mark read id ที่ไม่มี | 404 NOTIFICATION_NOT_FOUND | UT-NOTI-05, IT-NOTI-01 |
 | TS-NOTI-08 | REQ-NOTI-01 | input ผิด / JSON เสีย / body ใหญ่เกิน | 400 / 400 / 413 | UT-NOTI-01, IT-NOTI-03 |
 | TS-NOTI-09 | REQ-NOTI-01 | Auth service ล่มหรือ timeout | 503 AUTH_UNAVAILABLE | IT-NOTI-04 |
+| TS-NOTI-10 | REQ-NOTI-01 | Auth sends malformed/invalid JSON user or body timeout | 503 AUTH_UNAVAILABLE | IT-NOTI-05 |
 
 Preconditions: fresh NotificationService per test; dummy data; IT-NOTI-01..03 ใช้ stub แทน Auth, IT-NOTI-04 ใช้ fake HTTP Auth server. การทดสอบข้าม service จริงอยู่ใน ../automation-tests (Robot Framework).
