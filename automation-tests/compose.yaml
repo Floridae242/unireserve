@@ -18,12 +18,46 @@ services:
     depends_on:
       auth:
         condition: service_healthy
+  # Temporary stand-in for member3 Resource; replace with build: ../member3 once it exists.
+  resource:
+    image: node:24-alpine
+    command: ["node", "/stub/resource-stub.js"]
+    environment:
+      PORT: 3003
+    volumes:
+      - ./stubs:/stub:ro
+    ports:
+      - "127.0.0.1:3003:3003"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3003/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  booking:
+    build: ../member4
+    environment:
+      PORT: 3004
+      AUTH_URL: http://auth:3001
+      NOTIFICATION_URL: http://notification:3002
+      RESOURCE_URL: http://resource:3003
+      SERVICE_KEY: ${SERVICE_KEY:-local-dev-service-key}
+    ports:
+      - "127.0.0.1:3004:3004"
+    depends_on:
+      auth:
+        condition: service_healthy
+      notification:
+        condition: service_healthy
+      resource:
+        condition: service_healthy
   robot:
     build: .
     profiles: [test]
     environment:
       AUTH_URL: http://auth:3001
       NOTIFICATION_URL: http://notification:3002
+      RESOURCE_URL: http://resource:3003
+      BOOKING_URL: http://booking:3004
       SERVICE_KEY: ${SERVICE_KEY:-local-dev-service-key}
     volumes:
       - ./results:/tests/results
@@ -31,4 +65,6 @@ services:
       auth:
         condition: service_healthy
       notification:
+        condition: service_healthy
+      booking:
         condition: service_healthy
