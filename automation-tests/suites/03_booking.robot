@@ -2,6 +2,8 @@
 Documentation       REQ-BOOK-01, REQ-BOOK-02 and REQ-NOTI-01 across Auth -> Resource -> Booking -> Notification.
 ...                 Resource is a stub (automation-tests/stubs) until member3 ships; each test uses its own
 ...                 resource id so time slots never collide between tests or repeated runs.
+...                 RF-BOOK-06..08 (TS-BOOK-09) use extra Booking instances from compose.yaml wired to a failing,
+...                 unreachable or misconfigured Notification: the booking must still be saved.
 Resource            ../resources/common.resource
 Suite Setup         Booking Should Be Healthy
 
@@ -85,3 +87,44 @@ RF-BOOK-05 Booking Requires A Valid Token And Students Cannot Use Admin Endpoint
     GET    ${BOOKING_URL}/bookings    headers=${ALICE}[headers]    expected_status=403
     POST    ${BOOKING_URL}/closures    headers=${ALICE}[headers]
     ...    json=${{ {'startTime': $T09, 'endTime': $T10} }}    expected_status=403
+
+RF-BOOK-06 Notification 500 Is Retried Once And Booking Still Succeeds
+    ${room}=    Unique Id    room
+    ${before}=    Failing Notification Calls
+    ${resp}=    Create Booking    ${ALICE}[headers]    ${room}    ${T09}    ${T10}    base=${BOOKING_NOTIFY_500_URL}
+    Should Not Be True    ${resp.json()}[notificationSent]
+    ${after}=    Failing Notification Calls
+    Should Be Equal As Integers    ${after}    ${before + 2}    msg=Booking should try once and retry once on 5xx
+    Booking Should Be Saved    ${resp.json()}[booking][id]    CONFIRMED    ${BOOKING_NOTIFY_500_URL}
+    ${cancel}=    Cancel Booking    ${resp.json()}[booking][id]    ${ALICE}[headers]    base=${BOOKING_NOTIFY_500_URL}
+    Should Be Equal    ${cancel.json()}[booking][status]    CANCELLED
+    Should Not Be True    ${cancel.json()}[notificationSent]
+
+RF-BOOK-07 Unreachable Notification Does Not Block Booking Or Cancel
+    ${room}=    Unique Id    room
+    ${resp}=    Create Booking    ${ALICE}[headers]    ${room}    ${T09}    ${T10}    base=${BOOKING_NOTIFY_DOWN_URL}
+    Should Not Be True    ${resp.json()}[notificationSent]
+    Booking Should Be Saved    ${resp.json()}[booking][id]    CONFIRMED    ${BOOKING_NOTIFY_DOWN_URL}
+    ${cancel}=    Cancel Booking    ${resp.json()}[booking][id]    ${ALICE}[headers]    base=${BOOKING_NOTIFY_DOWN_URL}
+    Should Be Equal    ${cancel.json()}[booking][status]    CANCELLED
+    Should Not Be True    ${cancel.json()}[notificationSent]
+
+RF-BOOK-08 Mismatched Service Key Is Rejected By Notification But Booking Succeeds
+    [Documentation]    Simulates Booking and Notification configured with different SERVICE_KEY values.
+    ${room}=    Unique Id    room
+    ${resp}=    Create Booking    ${ALICE}[headers]    ${room}    ${T09}    ${T10}    base=${BOOKING_BAD_KEY_URL}
+    Should Not Be True    ${resp.json()}[notificationSent]
+    Booking Should Be Saved    ${resp.json()}[booking][id]    CONFIRMED    ${BOOKING_BAD_KEY_URL}
+    ${types}=    Notification Types For Booking    ${ALICE}    ${resp.json()}[booking][id]
+    Should Be Empty    ${types}    msg=Real Notification must not store a notification sent with a wrong key
+
+
+*** Keywords ***
+Failing Notification Calls
+    ${resp}=    GET    ${NOTIFICATION_500_URL}/calls    expected_status=200
+    RETURN    ${resp.json()}[calls]
+
+Booking Should Be Saved
+    [Arguments]    ${booking_id}    ${status}    ${base}
+    ${resp}=    Get Booking    ${booking_id}    ${ALICE}[headers]    base=${base}
+    Should Be Equal    ${resp.json()}[booking][status]    ${status}
