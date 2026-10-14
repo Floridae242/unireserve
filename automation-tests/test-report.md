@@ -12,7 +12,7 @@
 | Environment | Windows 11, Docker 29.8.2; Robot Framework 7.5, RequestsLibrary 0.9.7, Python 3.12 |
 | Services | member1 Auth, member2 Notification, member4 Booking (build จาก source), Resource = **stub** (`stubs/resource-stub.js`); สำหรับ RF-BOOK-06..08 มี Booking เพิ่ม 3 ตัวต่อกับ Notification ที่เสีย (`stubs/notification-500.js`, ที่อยู่ที่ไม่มี service, SERVICE_KEY ผิด) |
 | ผลรวม | **21 tests, 21 passed, 0 failed, 0 skipped** |
-| CI ยืนยัน | รอผล Integration Tests บน `bdc38f5` หลัง push (run ก่อนหน้า: [38621513298](https://github.com/Floridae242/unireserve/actions/runs/38621513298) success บน `959fc38`, 18 tests) |
+| CI ยืนยัน | [Integration Tests run 38625752844](https://github.com/Floridae242/unireserve/actions/runs/38625752844) — success บน `44e176e` (โค้ดเทสต์เหมือน `bdc38f5`; commit นี้แก้แค่ไฟล์ .md) ผ่านใน attempt 2 — attempt 1 ล้มตอน build image เพราะ `npm ci` ECONNRESET (เน็ตขาดชั่วคราว) ก่อนเทสต์เริ่ม |
 
 Report ฉบับเต็ม (`report.html`, `log.html`, `output.xml`) อยู่ใน `results/` ตอนรัน local (ไม่ commit) และใน artifact `robot-results` ของ CI run ข้างต้น
 
