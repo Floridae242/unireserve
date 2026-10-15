@@ -8,6 +8,9 @@ Suite Setup         Prepare Shared Users
 *** Keywords ***
 Prepare Shared Users
     Services Should Be Healthy
+    ${admin}=    Login    ${ADMIN_EMAIL}    ${ADMIN_PASSWORD}
+    ${admin_headers}=    Bearer    ${admin.json()}[token]
+    Set Global Variable    ${ADMIN_HEADERS}    ${admin_headers}
     ${alice}=    Create Logged In User
     ${bob}=    Create Logged In User
     Set Global Variable    ${ALICE}    ${alice}
