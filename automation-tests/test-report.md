@@ -12,7 +12,7 @@
 | Environment | Windows 11, Docker 29.8.2; Robot Framework 7.5, RequestsLibrary 0.9.7, Python 3.12 |
 | Services | **ทั้ง 5 services จริง** build จาก source: member1 Auth, member3 Resource, member2 Notification, member4 Booking, member5 Review — ไม่มี stub แทน service ใด; RF-BOOK-06..08 ใช้ Booking เพิ่ม 3 ตัวต่อกับ Notification ที่เสีย (`stubs/notification-500.js`, ที่อยู่ที่ไม่มี service, SERVICE_KEY ผิด) |
 | ผลรวม | **29 tests, 29 passed, 0 failed, 0 skipped** |
-| CI ยืนยัน | รอผล Integration Tests บน `fbfe96b` หลัง push — โค้ด API suites เดียวกันผ่าน CI แล้วบน `7650728` (PR #9): [38756440777](https://github.com/Floridae242/unireserve/actions/runs/38756440777) |
+| CI ยืนยัน | job `robot` ของ [Integration Tests run 38761586391](https://github.com/Floridae242/unireserve/actions/runs/38761586391/job/116513962587) — success บน `main` `bb964ca` (merge PR #10; โค้ดเทสต์เหมือน `fbfe96b`) |
 
 Report ฉบับเต็ม (`report.html`, `log.html`, `output.xml`) อยู่ใน `results/` ตอนรัน local (ไม่ commit) และใน artifact `robot-results` ของ CI
 
@@ -26,7 +26,7 @@ Report ฉบับเต็ม (`report.html`, `log.html`, `output.xml`) อย
 | Environment | Robot Framework 7.5, SeleniumLibrary 6.9.0, Selenium 4.51.0, Chrome ใน `selenium/standalone-chromium:152.0-20260909` (Remote WebDriver) |
 | Services | frontend (Next.js) + ทั้ง 5 services จริง; resource fixture สร้างผ่าน admin API |
 | ผลรวม | **3 tests, 3 passed, 0 failed, 0 skipped** |
-| CI ยืนยัน | รอผล job `ui` บน `fbfe96b` หลัง push (ยังไม่เคยรันบน GitHub) |
+| CI ยืนยัน | job `ui` ของ [Integration Tests run 38761586391](https://github.com/Floridae242/unireserve/actions/runs/38761586391/job/116513962039) — success บน `main` `bb964ca` (โค้ดเทสต์เหมือน `fbfe96b`); ผ่านบน PR #10 ด้วย ([38761012089](https://github.com/Floridae242/unireserve/actions/runs/38761012089)) |
 
 | Robot test | Flow | Result |
 |---|---|---|
