@@ -1,6 +1,6 @@
-# Local verification — member5
+# Local & CI verification — member5
 
-Branch: `titan`; executed on local working tree. Node 26.10.0, npm 11.19.1.
+Branch: `titan`; executed on local working tree and verified on GitHub Actions CI. Node 26.10.0, npm 11.19.1.
 
 | Check | Result |
 |---|---|
@@ -16,5 +16,5 @@ Branch: `titan`; executed on local working tree. Node 26.10.0, npm 11.19.1.
 | Input validation & limits | Rating outside 1-5, decimals, invalid JSON, payload > 8KB handled cleanly |
 | Service dependencies | Auth failure -> 503 AUTH_UNAVAILABLE; Booking failure -> 503 BOOKING_UNAVAILABLE |
 | Health check | `GET /health` returns 200 `{ status: "ok", service: "review" }` |
-
-Not verified locally: Live Docker container runtime smoke test (Docker Desktop daemon not running on host machine; Dockerfile and Compose definitions match member1/member2/member4 production specs).
+| **Member5 Review CI (Remote)** | [success (run 38700360740)](https://github.com/Floridae242/unireserve/actions/runs/38700360740) — typecheck, test, docker build, container health smoke passed |
+| **Integration Tests (Remote)** | [success (run 38700360602)](https://github.com/Floridae242/unireserve/actions/runs/38700360602) — **26/26 passed**, รวม TS-08, TS-09, TS-10, RF-REV-01, RF-REV-02 |
