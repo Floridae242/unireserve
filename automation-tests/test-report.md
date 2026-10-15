@@ -2,6 +2,41 @@
 
 บันทึกผลการรันจริงของ Robot Framework integration suites ตาม [docs/test-spec.md](../docs/test-spec.md) อัปเดตทุกครั้งที่รันรอบสำคัญ (เพิ่ม service / ก่อน release) ห้ามเติมผลที่ไม่ได้รันจริง
 
+## Release candidate `c035991` — ตรวจครบก่อน v1.0.0
+
+ตรวจ `main` ที่ `c035991` (merge PR #11) ครบทุกชั้นบนเครื่องที่ไม่มีไฟล์แก้ค้าง (ก่อน/หลังรัน: 0 ไฟล์เปลี่ยน)
+
+| Item | Value |
+|---|---|
+| Commit | `c035991` (`main`) |
+| วันที่รัน (local) | 2026-10-15 16:22–16:27 UTC (23:22–23:27 +07) |
+| Environment | Windows 11, Node 24.21.0, Docker 29.8.2; Robot Framework 7.5, RequestsLibrary 0.9.7, SeleniumLibrary 6.9.0 |
+| ผลรวม | **116 tests, 116 passed, 0 failed** |
+
+| ชั้น | คำสั่ง | Tests | ผล |
+|---|---|---|---|
+| Unit — member1 Auth | `npm ci && npm test` | 12 | ✅ 12/12 |
+| Unit — member2 Notification | `npm ci && npm test` | 10 | ✅ 10/10 |
+| Unit — member3 Resource | `npm ci && npm test` | 13 | ✅ 13/13 |
+| Unit — member4 Booking | `npm ci && npm test` | 13 | ✅ 13/13 |
+| Unit — member5 Review | `npm ci && npm test` | 23 | ✅ 23/23 |
+| Unit — frontend | `npm ci && npm test` | 13 | ✅ 13/13 |
+| Robot API (5 services จริง) | `docker compose --profile test run --rm --build robot` บน stack ใหม่ | 29 | ✅ 29/29 |
+| Robot UI (frontend + Chrome) | `docker compose --profile ui run --rm --build robot-ui` บน stack ใหม่ | 3 | ✅ 3/3 |
+
+**CI ที่ยืนยันโค้ดชุดนี้** — Integration Tests (API + UI) รันบน `c035991` โดยตรง: [38764062671](https://github.com/Floridae242/unireserve/actions/runs/38764062671) success; CI ของแต่ละ service รันเฉพาะเมื่อโฟลเดอร์ของตัวเองเปลี่ยน จึงใช้ run ล่าสุดที่ผ่าน และตรวจด้วย `git diff` แล้วว่าโฟลเดอร์และ workflow ของ service นั้นไม่เปลี่ยนจนถึง `c035991`:
+
+| Workflow | Run ที่ผ่าน (commit) | โค้ดเทียบ `c035991` |
+|---|---|---|
+| Member1 Auth CI | [38741033857](https://github.com/Floridae242/unireserve/actions/runs/38741033857) (`42ebe3a`) | เหมือนกัน |
+| Member2 Notification CI | [38543973555](https://github.com/Floridae242/unireserve/actions/runs/38543973555) (`e682c98`) | เหมือนกัน |
+| Member3 Resource CI | [38741033746](https://github.com/Floridae242/unireserve/actions/runs/38741033746) (`42ebe3a`) | เหมือนกัน |
+| Member4 Booking CI | [38584347169](https://github.com/Floridae242/unireserve/actions/runs/38584347169) (`c4f5699`) | เหมือนกัน |
+| Member5 Review CI | [38741019187](https://github.com/Floridae242/unireserve/actions/runs/38741019187) (`c9e3f1c`) | เหมือนกัน |
+| Frontend CI | [38745268427](https://github.com/Floridae242/unireserve/actions/runs/38745268427) (`f5cc079`) | เหมือนกัน |
+
+ถ้ามีการแก้โค้ดหลัง `c035991` ก่อน tag v1.0.0 ต้องรันชุดนี้ใหม่บน commit ที่จะ release จริง ยังไม่ได้ทดสอบ image ที่ publish ไป registry (ยังไม่มี release workflow ของทั้งกลุ่ม)
+
 ## Run ล่าสุด — API suites
 
 | Item | Value |
