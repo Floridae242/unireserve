@@ -11,12 +11,12 @@
 | TS-05 | REQ-BOOK-02 | จองทับ booking เดิม | 409 BOOKING_TIME_CONFLICT | `03_booking` TS-05 | ✅ PASS (Resource = stub) |
 | TS-06 | REQ-BOOK-02 | จองเริ่มตรง end ของรายการเดิม | 201 | `03_booking` TS-06 | ✅ PASS (Resource = stub) |
 | TS-07 | REQ-BOOK-01 | start >= end | 400 | `03_booking` TS-07 | ✅ PASS — ได้ 400 INVALID_TIME_RANGE |
-| TS-08 | REQ-REV-01 | owner review completed booking | 201 | — | ⏳ ยังไม่ execute: รอ member5 Review |
-| TS-09 | REQ-REV-01 | non-owner review | 403 | — | ⏳ ยังไม่ execute: รอ member5 Review |
-| TS-10 | REQ-REV-01 | review booking เดิมซ้ำ | 409 | — | ⏳ ยังไม่ execute: รอ member5 Review |
+| TS-08 | REQ-REV-01 | owner review completed booking | 201 | `04_review` TS-08 | ⏳ รอ execute รอบใหม่ (suite พร้อมแล้วใน branch titan) |
+| TS-09 | REQ-REV-01 | non-owner review | 403 | `04_review` TS-09 | ⏳ รอ execute รอบใหม่ (suite พร้อมแล้วใน branch titan) |
+| TS-10 | REQ-REV-01 | review booking เดิมซ้ำ | 409 | `04_review` TS-10 | ⏳ รอ execute รอบใหม่ (suite พร้อมแล้วใน branch titan) |
 
-Unit tests: อย่างน้อย service ละ 1 ตามแผน; เพิ่ม meaningful positive, negative และ boundary cases ตาม logic — ปัจจุบันมีใน member1, member2, member4 (ดู `memberN/test-spec.md` และ CI ของแต่ละ service)
+Unit tests: อย่างน้อย service ละ 1 ตามแผน; เพิ่ม meaningful positive, negative และ boundary cases ตาม logic — ปัจจุบันมีใน member1, member2, member4, member5 (ดู `memberN/test-spec.md` และ CI ของแต่ละ service)
 
-Integration: ทดสอบ Auth → Resource → Booking → Notification และ Review → Booking รวม concurrent booking conflict — ส่วน Auth → Booking → Notification, concurrent booking (RF-BOOK-01) และ Notification ล่ม (RF-BOOK-06..08) ผ่านแล้วโดยใช้ Resource stub; Review → Booking ยังไม่มี
+Integration: ทดสอบ Auth → Resource → Booking → Notification และ Review → Booking รวม concurrent booking conflict — ส่วน Auth → Booking → Notification, concurrent booking (RF-BOOK-01) และ Notification ล่ม (RF-BOOK-06..08) ผ่านแล้วโดยใช้ Resource stub; Review → Booking เพิ่ม suite ใน automation-tests/suites/04_review.robot แล้ว
 
 เก็บ actual result, execution date, commit SHA และ test report เมื่อรันจริง ห้ามเติมสถานะผ่านล่วงหน้า
