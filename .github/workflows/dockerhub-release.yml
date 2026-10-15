@@ -1,0 +1,78 @@
+name: Docker Hub Release
+on:
+  release:
+    types: [published]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      ADMIN_EMAIL: ci-admin@example.test
+      ADMIN_PASSWORD: ci-only-generated-password
+      SERVICE_KEY: ci-only-internal-service-key
+      FRONTEND_PORT: '3300'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate stable version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: '[[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Unit tests and typecheck
+        run: |
+          for directory in member1 member2 member3 member4 member5 frontend; do
+            (cd "$directory" && npm ci && npm run typecheck && npm test)
+          done
+      - name: Build and start all services
+        run: docker compose -f compose.web.yaml up -d --build --wait --wait-timeout 240
+      - name: Full stack smoke test
+        env:
+          APP_URL: http://localhost:3300
+        run: node frontend/scripts/smoke.mjs
+      - name: Teardown
+        if: always()
+        run: docker compose -f compose.web.yaml down
+  publish:
+    needs: verify
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {directory: member1, image: auth}
+          - {directory: member2, image: notification}
+          - {directory: member3, image: resource}
+          - {directory: member4, image: booking}
+          - {directory: member5, image: review}
+          - {directory: frontend, image: frontend}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: floridae
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./${{ matrix.directory }}
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            floridae/unireserve-${{ matrix.image }}:${{ github.event.release.tag_name }}
+            floridae/unireserve-${{ matrix.image }}:latest
+  assets:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Attach run configuration
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$RELEASE_TAG" compose.release.yaml .env.example --clobber

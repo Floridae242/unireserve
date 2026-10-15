@@ -74,3 +74,7 @@ unireserve/
 
 ตั้ง root .env จาก .env.example แล้วรัน `docker compose -f compose.web.yaml up -d --build --wait`
 ดู [Frontend guide](frontend/README.md) และ [Verification](docs/frontend-verification.md)
+
+## Docker Hub release
+
+See [release instructions](docs/dockerhub-release.md) to publish or run the complete six-service application from prebuilt images using `compose.release.yaml`.
