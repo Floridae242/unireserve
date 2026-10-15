@@ -1,0 +1,60 @@
+name: unireserve-web
+services:
+  auth:
+    build: ./member1
+    environment:
+      PORT: '3001'
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?Set ADMIN_EMAIL in root .env}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in root .env}
+  notification:
+    build: ./member2
+    environment:
+      PORT: '3002'
+      AUTH_URL: http://auth:3001
+      SERVICE_KEY: ${SERVICE_KEY:?Set SERVICE_KEY in root .env}
+    depends_on:
+      auth: {condition: service_healthy}
+  resource:
+    build: ./member3
+    environment:
+      PORT: '3003'
+      AUTH_URL: http://auth:3001
+    depends_on:
+      auth: {condition: service_healthy}
+  booking:
+    build: ./member4
+    environment:
+      PORT: '3004'
+      AUTH_URL: http://auth:3001
+      RESOURCE_URL: http://resource:3003
+      NOTIFICATION_URL: http://notification:3002
+      SERVICE_KEY: ${SERVICE_KEY:?Set SERVICE_KEY in root .env}
+    depends_on:
+      resource: {condition: service_healthy}
+      notification: {condition: service_healthy}
+  review:
+    build: ./member5
+    environment:
+      PORT: '3005'
+      AUTH_URL: http://auth:3001
+      BOOKING_URL: http://booking:3004
+    depends_on:
+      booking: {condition: service_healthy}
+  frontend:
+    build: ./frontend
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-3000}:3000"
+    environment:
+      AUTH_URL: http://auth:3001
+      NOTIFICATION_URL: http://notification:3002
+      RESOURCE_URL: http://resource:3003
+      BOOKING_URL: http://booking:3004
+      REVIEW_URL: http://review:3005
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      APP_ORIGIN: ${APP_ORIGIN:-http://localhost:${FRONTEND_PORT:-3000}}
+    depends_on:
+      auth: {condition: service_healthy}
+      notification: {condition: service_healthy}
+      resource: {condition: service_healthy}
+      booking: {condition: service_healthy}
+      review: {condition: service_healthy}
