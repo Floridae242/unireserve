@@ -32,7 +32,7 @@ import {
   Notice,
   State,
   useData,
-  RoomArt,
+  ResourcePhoto,
   ResourceCard,
 } from "./shared";
 export function Dashboard({ user }: { user: User }) {
@@ -73,10 +73,7 @@ export function Dashboard({ user }: { user: User }) {
           </Link>
         </div>
         <div className="hero-art">
-          <RoomArt />
-          <span className="art-caption">
-            <span /> A little space. A lot of possibility.
-          </span>
+          <ResourcePhoto />
         </div>
       </section>
       <div className="stats">
@@ -258,7 +255,7 @@ export function ResourceDetail({ id }: { id: string }) {
           <div className="detail-grid">
             <section>
               <div className="detail-art">
-                <RoomArt />
+                <ResourcePhoto resource={resource} />
               </div>
               <div className="detail-summary">
                 <span>

@@ -4,7 +4,7 @@ Next.js16 + React19 + TypeScript ภาษาไทย รองรับ deskto
 
 มี Login/Register, Dashboard, Resource search/detail/booking, Booking history/cancel,
 Notification inbox/read, completed-booking Reviews และ Admin Resource CRUD/Bookings/Closures/Reviews
-ใช้ข้อมูลจาก5servicesจริง รูปห้องเป็น CSS illustration ไม่ใช่ภาพสถานที่จริง
+ใช้ข้อมูลจาก5servicesจริง ใช้ภาพประกอบจาก Pexels ไม่ใช่สถานที่หรืออุปกรณ์จริง ดูผู้ถ่ายและลิงก์ต้นฉบับที่ `/photo-credits`
 
 ## Docker ครบระบบ
 

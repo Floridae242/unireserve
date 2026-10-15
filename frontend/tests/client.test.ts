@@ -32,9 +32,11 @@ test("booking validates ordered future instants and converts timezone", () => {
       endTime: "2030-01-02T04:00:00.000Z",
     },
   );
-  assert.throws(() => bookingRange("bad", "bad", 0));
-  assert.throws(() => bookingRange("2030-01-02", "2030-01-01", 0));
-  assert.throws(() => bookingRange("2020-01-01", "2020-01-02", Date.now()));
+  assert.throws(() => bookingRange("bad", "bad", 0), /กรุณาระบุวัน/);
+  assert.throws(() => bookingRange("2030-01-02", "2030-01-01", 0), /เวลาสิ้นสุดต้อง/);
+  assert.throws(() => bookingRange("2020-01-01", "2020-01-02", Date.now()), /เวลาเริ่มผ่านไปแล้ว/);
+  const now = Date.parse("2026-10-15T20:36:00+07:00");
+  assert.throws(() => bookingRange("2026-10-15T20:35:00+07:00", "2026-10-16T07:35:00+07:00", now), /เวลาเริ่มผ่านไปแล้ว/);
 });
 test("only future confirmed bookings expose cancellation", () => {
   const b = {

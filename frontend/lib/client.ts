@@ -66,8 +66,12 @@ export function filterResources(
 export function bookingRange(start: string, end: string, now = Date.now()) {
   const a = new Date(start).getTime(),
     b = new Date(end).getTime();
-  if (!Number.isFinite(a) || !Number.isFinite(b) || a <= now || b <= a)
-    throw new Error("เลือกเวลาเริ่มในอนาคต และเวลาสิ้นสุดหลังเวลาเริ่ม");
+  if (!Number.isFinite(a) || !Number.isFinite(b))
+    throw new Error("กรุณาระบุวันและเวลาเริ่มและสิ้นสุดให้ครบถ้วน");
+  if (a <= now)
+    throw new Error("เวลาเริ่มผ่านไปแล้ว กรุณาเลือกเวลาเริ่มใหม่ที่อยู่ในอนาคต");
+  if (b <= a)
+    throw new Error("เวลาสิ้นสุดต้องอยู่หลังเวลาเริ่ม");
   return {
     startTime: new Date(a).toISOString(),
     endTime: new Date(b).toISOString(),
