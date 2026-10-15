@@ -2,21 +2,39 @@
 
 บันทึกผลการรันจริงของ Robot Framework integration suites ตาม [docs/test-spec.md](../docs/test-spec.md) อัปเดตทุกครั้งที่รันรอบสำคัญ (เพิ่ม service / ก่อน release) ห้ามเติมผลที่ไม่ได้รันจริง
 
-## Run ล่าสุด
+## Run ล่าสุด — API suites
 
 | Item | Value |
 |---|---|
-| Commit | `b960dfb` (branch `phlu`, ต่อจาก `main` `f5cc079`) |
-| วันที่รัน (local) | 2026-10-15 14:20 UTC (21:20 +07) |
+| Commit | `fbfe96b` (branch `phlu`, ต่อจาก `main` `f5cc079`) |
+| วันที่รัน (local) | 2026-10-15 15:26 UTC (22:26 +07) |
 | คำสั่ง | `docker compose --profile test run --rm --build robot` บน stack ใหม่ (`down` ก่อนรัน) |
 | Environment | Windows 11, Docker 29.8.2; Robot Framework 7.5, RequestsLibrary 0.9.7, Python 3.12 |
 | Services | **ทั้ง 5 services จริง** build จาก source: member1 Auth, member3 Resource, member2 Notification, member4 Booking, member5 Review — ไม่มี stub แทน service ใด; RF-BOOK-06..08 ใช้ Booking เพิ่ม 3 ตัวต่อกับ Notification ที่เสีย (`stubs/notification-500.js`, ที่อยู่ที่ไม่มี service, SERVICE_KEY ผิด) |
 | ผลรวม | **29 tests, 29 passed, 0 failed, 0 skipped** |
-| CI ยืนยัน | รอผล Integration Tests บน `b960dfb` หลัง push — run ล่าสุดบน `main`: [38741034089](https://github.com/Floridae242/unireserve/actions/runs/38741034089) success บน `42ebe3a` |
+| CI ยืนยัน | รอผล Integration Tests บน `fbfe96b` หลัง push — โค้ด API suites เดียวกันผ่าน CI แล้วบน `7650728` (PR #9): [38756440777](https://github.com/Floridae242/unireserve/actions/runs/38756440777) |
 
 Report ฉบับเต็ม (`report.html`, `log.html`, `output.xml`) อยู่ใน `results/` ตอนรัน local (ไม่ commit) และใน artifact `robot-results` ของ CI
 
-## ผลรายเทสต์
+## Run ล่าสุด — UI suite
+
+| Item | Value |
+|---|---|
+| Commit | `fbfe96b` (branch `phlu`) |
+| วันที่รัน (local) | 2026-10-15 15:25 UTC (22:25 +07) |
+| คำสั่ง | `docker compose --profile ui run --rm --build robot-ui` บน stack ใหม่ |
+| Environment | Robot Framework 7.5, SeleniumLibrary 6.9.0, Selenium 4.51.0, Chrome ใน `selenium/standalone-chromium:152.0-20260909` (Remote WebDriver) |
+| Services | frontend (Next.js) + ทั้ง 5 services จริง; resource fixture สร้างผ่าน admin API |
+| ผลรวม | **3 tests, 3 passed, 0 failed, 0 skipped** |
+| CI ยืนยัน | รอผล job `ui` บน `fbfe96b` หลัง push (ยังไม่เคยรันบน GitHub) |
+
+| Robot test | Flow | Result |
+|---|---|---|
+| UI-01 Student Registers And Logs In Through The Web Page | สมัครสมาชิก → login → เห็นเมนูหลักและอีเมล, ไม่เห็นเมนูจัดการระบบ | PASS |
+| UI-02 Student Books A Resource And Sees The Booking And Its Notification | หน้า resource → กรอกเวลา → ยืนยันการจอง → "การจองของฉัน" สถานะยืนยันแล้ว → แจ้งเตือนของการจองนั้น → กดอ่านแล้ว | PASS |
+| UI-03 Only The Admin Account Sees The Admin Page | student เปิด /admin เห็นไม่มีสิทธิ์ → logout → admin login → เมนูจัดการระบบ → หน้าจัดการระบบ | PASS |
+
+## ผลรายเทสต์ (API suites)
 
 | Suite | Robot test | Spec | Services ที่เกี่ยวข้อง | Result |
 |---|---|---|---|---|
@@ -66,7 +84,7 @@ Report ฉบับเต็ม (`report.html`, `log.html`, `output.xml`) อย
 ## ข้อจำกัดของผลนี้
 
 - ยังไม่มี Robot test สำหรับ admin flows ของ Booking (closures, admin cancel) — Auth สร้าง admin ได้แล้ว จึงเพิ่มได้
-- Frontend ไม่อยู่ใน Robot suites (ทดสอบด้วย Frontend CI และ `docs/frontend-verification.md`)
+- UI suite ครอบคลุมเฉพาะ 3 flow หลักบน Chrome ขนาดจอ desktop: ไม่ได้ทดสอบ mobile, browser อื่น, accessibility หรือหน้า admin CRUD/closures/reviews
 - TS-08 (Review) ต้องใช้เวลาจริงเพราะ Booking ไม่รับเวลาในอดีต: จองช่วงสั้นที่เริ่มอีก 3 วินาที ถ้า start เลยไปก่อน request ถึง Booking จะคำนวณเวลาใหม่และลองซ้ำ (สูงสุด 3 ครั้ง, log เป็น WARN) แล้ว poll จน status เป็น COMPLETED (timeout 20 วินาที) แทน `Sleep 4s` เดิม — ทดสอบ path ลองซ้ำแล้วโดยบังคับ start เป็นอดีต; suite นี้ใช้เวลาเพิ่ม ~5 วินาที
 - กรณี Notification ตอบ 4xx แล้ว Booking ต้องไม่ retry: Robot นับจำนวนครั้งไม่ได้เพราะ RF-BOOK-08 ใช้ Notification จริง — ครอบคลุมด้วย unit/HTTP tests ของ member4
 - ข้อมูลทุก service อยู่ใน memory: ไม่ได้ทดสอบ persistence หรือหลาย replicas
