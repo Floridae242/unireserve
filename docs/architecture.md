@@ -10,9 +10,9 @@ Booking เรียก Auth เพื่อตรวจ token, Resource เพ�
 | Notification | POST /notifications; GET /notifications/user/:userId; PATCH /notifications/:id/read |
 | Resource | GET/POST /resources; GET/PATCH/DELETE /resources/:id |
 | Booking | POST /bookings; GET /bookings (admin), /bookings/:id, /bookings/user/:userId; PATCH /bookings/:id/cancel; GET/POST /closures, DELETE /closures/:id (admin) — implemented, see member4/README.md |
-| Review | POST /reviews; GET /reviews/resource/:resourceId, /reviews/user/:userId |
+| Review | POST /reviews; GET /reviews/resource/:resourceId, /reviews/user/:userId, /reviews/:id, GET /reviews (admin) — implemented, see member5/README.md |
 
-ทุก service มี GET /health; endpoints ข้างต้นยังไม่ถูก implement
+ทุก service มี GET /health; member1, member2, member4 และ member5 พร้อมใช้งานแล้ว
 
 ## Business decisions ที่ต้องตกลง
 

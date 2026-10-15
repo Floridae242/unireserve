@@ -1,0 +1,11 @@
+services:
+  review:
+    build: .
+    ports:
+      - "127.0.0.1:3005:3005"
+    environment:
+      PORT: 3005
+      AUTH_URL: http://host.docker.internal:3001
+      BOOKING_URL: http://host.docker.internal:3004
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

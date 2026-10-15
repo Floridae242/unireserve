@@ -1,0 +1,34 @@
+name: Member5 Review CI
+on:
+  push:
+    branches: [titan, main]
+    paths: ['member5/**', '.github/workflows/member5-ci.yml']
+  pull_request:
+    paths: ['member5/**', '.github/workflows/member5-ci.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: member5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: member5/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: docker build -t unireserve-review:ci .
+      - name: Container health smoke
+        run: |
+          docker compose up -d --wait
+          curl --fail http://127.0.0.1:3005/health
+      - name: Teardown
+        if: always()
+        run: docker compose down

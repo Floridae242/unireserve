@@ -15,6 +15,7 @@ ${BOOKING_NOTIFY_500_URL}     %{BOOKING_NOTIFY_500_URL=http://localhost:3014}
 ${BOOKING_NOTIFY_DOWN_URL}    %{BOOKING_NOTIFY_DOWN_URL=http://localhost:3024}
 ${BOOKING_BAD_KEY_URL}        %{BOOKING_BAD_KEY_URL=http://localhost:3034}
 ${NOTIFICATION_500_URL}       %{NOTIFICATION_500_URL=http://localhost:3012}
+${REVIEW_URL}                 %{REVIEW_URL=http://localhost:3005}
 ${SERVICE_KEY}          %{SERVICE_KEY=local-dev-service-key}
 ${ADMIN_EMAIL}          %{ADMIN_EMAIL=admin@example.test}
 ${ADMIN_PASSWORD}       %{ADMIN_PASSWORD=robot-only-admin-password}
@@ -144,3 +145,29 @@ Ensure Booking Resource Exists
     POST    ${RESOURCE_URL}/resources    headers=${ADMIN_HEADERS}
     ...    json=${{ {'id': $resource_id, 'name': 'Robot fixture ' + $resource_id, 'active': $active} }}
     ...    expected_status=201
+Review Should Be Healthy
+    GET    ${REVIEW_URL}/health    expected_status=200
+
+Create Review
+    [Arguments]    ${headers}    ${booking_id}    ${rating}    ${comment}=${None}    ${expected_status}=201    ${base}=${REVIEW_URL}
+    ${body}=    Create Dictionary    bookingId=${booking_id}    rating=${rating}
+    IF    $comment is not None
+        Set To Dictionary    ${body}    comment=${comment}
+    END
+    ${resp}=    POST    ${base}/reviews    headers=${headers}    json=${body}    expected_status=${expected_status}
+    RETURN    ${resp}
+
+Get Review
+    [Arguments]    ${review_id}    ${headers}    ${expected_status}=200    ${base}=${REVIEW_URL}
+    ${resp}=    GET    ${base}/reviews/${review_id}    headers=${headers}    expected_status=${expected_status}
+    RETURN    ${resp}
+
+List Reviews For Resource
+    [Arguments]    ${resource_id}    ${headers}    ${expected_status}=200    ${base}=${REVIEW_URL}
+    ${resp}=    GET    ${base}/reviews/resource/${resource_id}    headers=${headers}    expected_status=${expected_status}
+    RETURN    ${resp}
+
+List Reviews For User
+    [Arguments]    ${user_id}    ${headers}    ${expected_status}=200    ${base}=${REVIEW_URL}
+    ${resp}=    GET    ${base}/reviews/user/${user_id}    headers=${headers}    expected_status=${expected_status}
+    RETURN    ${resp}
