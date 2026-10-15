@@ -6,7 +6,7 @@ export function httpBookingLookup(bookingUrl: string, timeoutMs = 3000): GetBook
   return async (bookingId, authorization) => {
     let response: Response;
     try {
-      response = await fetch(`${bookingUrl}/bookings/${bookingId}`, {
+      response = await fetch(`${bookingUrl}/bookings/${encodeURIComponent(bookingId)}`, {
         method: "GET",
         headers: { Authorization: authorization },
         signal: AbortSignal.timeout(timeoutMs),
@@ -29,7 +29,7 @@ export function httpBookingLookup(bookingUrl: string, timeoutMs = 3000): GetBook
       if (
         !b ||
         typeof b !== "object" ||
-        typeof b.id !== "string" ||
+        typeof b.id !== "string" || b.id !== bookingId ||
         typeof b.userId !== "string" ||
         typeof b.resourceId !== "string" ||
         typeof b.status !== "string"

@@ -325,3 +325,24 @@ test('IT-REV-13 GET /health smoke test', async () => {
   const res = await request(app).get('/health').expect(200);
   assert.deepEqual(res.body, { status: 'ok', service: 'review' });
 });
+
+test('IT-REV-14 booking aliases cannot bypass duplicate protection', async () => {
+  const seen = [];
+  const upstream = http.createServer((req, res) => {
+    seen.push(req.url);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ booking: { id: 'canonical', userId: 'user-1', resourceId: 'room-101', status: 'COMPLETED' } }));
+  });
+  await new Promise(resolve => upstream.listen(0, '127.0.0.1', resolve));
+  try {
+    const lookup = httpBookingLookup(`http://127.0.0.1:${upstream.address().port}`);
+    assert.equal((await lookup('canonical', 'Bearer token')).id, 'canonical');
+    for (const alias of ['canonical?duplicate=1', 'canonical#fragment', 'canonical/../canonical']) {
+      await assert.rejects(lookup(alias, 'Bearer token'), { code: 'BOOKING_UNAVAILABLE' });
+    }
+    assert.deepEqual(seen, ['/bookings/canonical', '/bookings/canonical%3Fduplicate%3D1', '/bookings/canonical%23fragment', '/bookings/canonical%2F..%2Fcanonical']);
+  } finally {
+    upstream.closeAllConnections();
+    await new Promise(resolve => upstream.close(resolve));
+  }
+});
