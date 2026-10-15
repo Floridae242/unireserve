@@ -1,6 +1,6 @@
 # Test specification
 
-ใช้ข้อมูลทดสอบจำลองและ reset isolated test environment ก่อนแต่ละชุด สถานะด้านล่างมาจากการรันจริงล่าสุดใน [automation-tests/test-report.md](../automation-tests/test-report.md) (commit `fbfe96b`, 2026-10-15 UTC, ทั้ง 5 services จริง; UI flows หลักผ่าน 3/3 ด้วย SeleniumLibrary) — อัปเดตเมื่อรันใหม่เท่านั้น
+ใช้ข้อมูลทดสอบจำลองและ reset isolated test environment ก่อนแต่ละชุด สถานะด้านล่างมาจากการรันจริงล่าสุดใน [automation-tests/test-report.md](../automation-tests/test-report.md) (release candidate `c035991`, 2026-10-15 UTC, ทั้ง 5 services จริง; UI flows หลักผ่าน 3/3 ด้วย SeleniumLibrary; unit tests ทุก service ผ่าน) — อัปเดตเมื่อรันใหม่เท่านั้น
 
 | ID | Trace | Preconditions / action | Expected | Automated test | Actual (latest run) |
 |---|---|---|---|---|---|
