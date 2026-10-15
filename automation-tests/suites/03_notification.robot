@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation       REQ-NOTI-01 Notification API directly. The suite plays an internal service by calling
-...                 POST /notifications with the service key; the real Booking -> Notification flow is in 03_booking.
+...                 POST /notifications with the service key; the real Booking -> Notification flow is in 04_booking.
 Resource            ../resources/common.resource
 
 

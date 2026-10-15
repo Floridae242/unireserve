@@ -2,9 +2,9 @@ name: Integration Tests (Robot Framework)
 on:
   push:
     branches: [phlu, titan, main]
-    paths: ['member1/**', 'member2/**', 'member4/**', 'member5/**', 'automation-tests/**', '.github/workflows/integration-tests.yml']
+    paths: ['member1/**', 'member2/**', 'member3/**', 'member4/**', 'member5/**', 'automation-tests/**', '.github/workflows/integration-tests.yml']
   pull_request:
-    paths: ['member1/**', 'member2/**', 'member4/**', 'member5/**', 'automation-tests/**', '.github/workflows/integration-tests.yml']
+    paths: ['member1/**', 'member2/**', 'member3/**', 'member4/**', 'member5/**', 'automation-tests/**', '.github/workflows/integration-tests.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -16,7 +16,7 @@ jobs:
         working-directory: automation-tests
     steps:
       - uses: actions/checkout@v4
-      - name: Run Robot Framework suites against Auth, Notification, Booking and Resource stub
+      - name: Run Robot Framework suites against all five services
         run: docker compose --profile test run --rm --build robot
       - name: Upload Robot report
         if: always()

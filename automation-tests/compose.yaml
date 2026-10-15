@@ -65,7 +65,7 @@ services:
         condition: service_healthy
       booking:
         condition: service_healthy
-  # --- Notification failure scenarios (03_booking RF-BOOK-06..08, member4 TS-BOOK-09): extra Booking instances wired to a broken Notification ---
+  # --- Notification failure scenarios (04_booking RF-BOOK-06..08, member4 TS-BOOK-09): extra Booking instances wired to a broken Notification ---
   notification-500:
     image: node:24-alpine
     command: ["node", "/stub/notification-500.js"]
