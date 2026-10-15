@@ -11,4 +11,4 @@ Branch: frame; executed on local working tree. Node 24+, TypeScript 5.9.3.
 | Student access | Passed: can view active resources, denied from admin routes (403 FORBIDDEN) |
 | Admin resource CRUD | Passed: create (201), update (200), delete (204), list all/filter (200) |
 | Booking Service contract compatibility | Passed: `GET /resources/:id` returns 200 `{ resource: { id, name, active } }` for active/inactive, 404 for missing |
-| Test stubs fallback | Passed: dynamic IDs `room-*`, `inactive-*`, `missing-*` compatible with Robot Framework suites |
+| Explicit resource fixtures | Prefix fallback removed; unknown/deleted resources return404; Robot creates fixtures through authenticated admin API |
