@@ -28,8 +28,8 @@ Node.js 24+; env: `PORT` (default 3003), `AUTH_URL` (default http://localhost:30
   - Booking Service จะเรียก `GET /resources/:id` เพื่อตรวจสอบความมีอยู่และสถานะ `active` ของทรัพยากรก่อนอนุญาตให้จอง
   - หากทรัพยากรมีอยู่แต่ `active: false` ระบบจะตอบกลับ 200 `{ resource: { id, name, active: false } }` เพื่อให้ Booking Service ตอบกลับ 409 `RESOURCE_INACTIVE` ตามข้อกำหนด
   - หากไม่พบทรัพยากร จะตอบกลับ 404 `RESOURCE_NOT_FOUND`
-- **Dynamic ID Fallback สำหรับ Automation Tests**:
-  - รองรับ ID จำลองระหว่าง integration testing เช่น `room-*` (active: true), `inactive-*` (active: false), และ `missing-*` (404) เพื่อความเข้ากันได้กับชุดทดสอบของระบบ
+- **Explicit fixtures สำหรับ Automation Tests**:
+  - คืนเฉพาะ resource ที่บันทึกอยู่จริง; Robot สร้างข้อมูลทดสอบผ่าน admin API ก่อนจอง ไม่สร้าง resource จาก prefix
 
 ## API
 
