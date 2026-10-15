@@ -69,3 +69,8 @@ unireserve/
 แผนนี้ดัดแปลงจาก `deep-research-report-7.md` ที่ผู้ใช้ให้มา สำหรับ member1 ได้อ่าน `deploy2-2/งานกลุ่ม.pdf`, part2, software testing และ starter โดยตรงแล้ว ควรยืนยันว่าอาจารย์ยอมรับ monorepo ที่มี 5 projects ก่อนส่งงาน
 
 ห้าม commit secrets หรือข้อมูลส่วนบุคคล ใช้ environment variables และ dummy test data
+
+## Frontend — Next.js / React
+
+ตั้ง root .env จาก .env.example แล้วรัน `docker compose -f compose.web.yaml up -d --build --wait`
+ดู [Frontend guide](frontend/README.md) และ [Verification](docs/frontend-verification.md)

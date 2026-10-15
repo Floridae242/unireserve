@@ -1,0 +1,57 @@
+name: Frontend CI
+on:
+  pull_request:
+    paths: ['frontend/**', 'member*/**', 'compose.web.yaml', '.github/workflows/frontend-ci.yml']
+  push:
+    branches: [main]
+    paths: ['frontend/**', 'member*/**', 'compose.web.yaml', '.github/workflows/frontend-ci.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - name: Start complete stack
+        working-directory: .
+        env:
+          ADMIN_EMAIL: ci-admin@example.test
+          ADMIN_PASSWORD: ci-only-generated-password
+          SERVICE_KEY: ci-only-internal-service-key
+          FRONTEND_PORT: '3300'
+        run: docker compose -f compose.web.yaml up -d --build --wait --wait-timeout 240
+      - name: Verify frontend against all five services
+        env:
+          APP_URL: http://localhost:3300
+          ADMIN_EMAIL: ci-admin@example.test
+          ADMIN_PASSWORD: ci-only-generated-password
+        run: node scripts/smoke.mjs
+      - name: Logs on failure
+        if: failure()
+        working-directory: .
+        env:
+          ADMIN_EMAIL: ci-admin@example.test
+          ADMIN_PASSWORD: ci-only-generated-password
+          SERVICE_KEY: ci-only-internal-service-key
+        run: docker compose -f compose.web.yaml logs --tail 50
+      - name: Teardown
+        if: always()
+        working-directory: .
+        env:
+          ADMIN_EMAIL: ci-admin@example.test
+          ADMIN_PASSWORD: ci-only-generated-password
+          SERVICE_KEY: ci-only-internal-service-key
+        run: docker compose -f compose.web.yaml down
