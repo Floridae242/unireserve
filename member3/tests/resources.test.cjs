@@ -125,21 +125,20 @@ test('UT-RES-04 duplicate id throws 409 and non-existent resource throws 404', (
   });
 });
 
-test('UT-RES-05 compatibility fallback for test automation dynamic IDs', () => {
+test('UT-RES-05 unknown room and inactive IDs never fabricate resources', () => {
   const service = new ResourceService();
+  assert.equal(service.get('room-unknown'), null);
+  assert.equal(service.get('inactive-unknown'), null);
+});
 
-  // missing-* always returns null
-  assert.equal(service.get('missing-12345'), null);
-
-  // room-* returns dynamically created active resource
-  const room = service.get('room-dynamic-test');
-  assert.ok(room);
-  assert.equal(room.id, 'room-dynamic-test');
-  assert.equal(room.active, true);
-
-  // inactive-* returns dynamically created inactive resource
-  const inactive = service.get('inactive-dynamic-test');
-  assert.ok(inactive);
-  assert.equal(inactive.id, 'inactive-dynamic-test');
-  assert.equal(inactive.active, false);
+test('UT-RES-06 deleted rooms stay missing and cannot be updated', () => {
+  const service = new ResourceService();
+  service.delete('room-101');
+  assert.equal(service.get('room-101'), null);
+  assert.throws(() => service.update('room-101', { name: 'Resurrected' }), {
+    status: 404, code: 'RESOURCE_NOT_FOUND',
+  });
+  assert.throws(() => service.update('room-unknown', { name: 'New room' }), {
+    status: 404, code: 'RESOURCE_NOT_FOUND',
+  });
 });

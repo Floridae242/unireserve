@@ -16,6 +16,8 @@ ${BOOKING_NOTIFY_DOWN_URL}    %{BOOKING_NOTIFY_DOWN_URL=http://localhost:3024}
 ${BOOKING_BAD_KEY_URL}        %{BOOKING_BAD_KEY_URL=http://localhost:3034}
 ${NOTIFICATION_500_URL}       %{NOTIFICATION_500_URL=http://localhost:3012}
 ${SERVICE_KEY}          %{SERVICE_KEY=local-dev-service-key}
+${ADMIN_EMAIL}          %{ADMIN_EMAIL=admin@example.test}
+${ADMIN_PASSWORD}       %{ADMIN_PASSWORD=robot-only-admin-password}
 ${PASSWORD}             robot-dummy-password
 ${FAKE_TOKEN}           ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 
@@ -86,6 +88,7 @@ Booking Should Be Healthy
 
 Create Booking
     [Arguments]    ${headers}    ${resource_id}    ${start}    ${end}    ${expected_status}=201    ${base}=${BOOKING_URL}
+    Ensure Booking Resource Exists    ${resource_id}
     ${resp}=    POST    ${base}/bookings    headers=${headers}
     ...    json=${{ {'resourceId': $resource_id, 'startTime': $start, 'endTime': $end} }}
     ...    expected_status=${expected_status}
@@ -125,3 +128,19 @@ List Resources
         ${resp}=    GET    ${RESOURCE_URL}/resources    headers=${headers}    params=${params}    expected_status=${expected_status}
     END
     RETURN    ${resp}
+
+Ensure Booking Resource Exists
+    [Documentation]    Creates explicit fixtures through the admin API, never fabricating resources in production.
+    [Arguments]    ${resource_id}
+    IF    not ($resource_id.startswith('room-') or $resource_id.startswith('inactive-'))
+        RETURN
+    END
+    ${existing}=    GET    ${RESOURCE_URL}/resources/${resource_id}    expected_status=any
+    IF    $existing.status_code == 200
+        RETURN
+    END
+    Should Be Equal As Integers    ${existing.status_code}    404
+    ${active}=    Evaluate    not $resource_id.startswith('inactive-')
+    POST    ${RESOURCE_URL}/resources    headers=${ADMIN_HEADERS}
+    ...    json=${{ {'id': $resource_id, 'name': 'Robot fixture ' + $resource_id, 'active': $active} }}
+    ...    expected_status=201

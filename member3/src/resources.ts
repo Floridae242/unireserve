@@ -164,37 +164,7 @@ export class ResourceService {
   }
 
   get(id: string): Resource | null {
-    const existing = this.resources.get(id);
-    if (existing) return existing;
-
-    // Compatibility hook for test stubs / dynamic ids (e.g. room-* or inactive-* or missing-*)
-    if (id.startsWith("missing-")) {
-      return null;
-    }
-    if (id.startsWith("inactive-")) {
-      return {
-        id,
-        name: `Resource ${id}`,
-        type: "room",
-        capacity: 10,
-        active: false,
-        createdAt: this.now(),
-        updatedAt: this.now(),
-      };
-    }
-    if (id.startsWith("room-")) {
-      return {
-        id,
-        name: `Resource ${id}`,
-        type: "room",
-        capacity: 30,
-        active: true,
-        createdAt: this.now(),
-        updatedAt: this.now(),
-      };
-    }
-
-    return null;
+    return this.resources.get(id) ?? null;
   }
 
   list(options: { activeOnly?: boolean; active?: boolean; type?: string } = {}): Resource[] {

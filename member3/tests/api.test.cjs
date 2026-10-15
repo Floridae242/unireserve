@@ -175,3 +175,20 @@ test('IT-RES-06 common error handling: 404 on unknown route, 400 on malformed js
     .expect(400);
   assert.equal(badJson.body.error, 'INVALID_JSON');
 });
+
+test('IT-RES-07 unknown and deleted rooms return 404 and PATCH cannot recreate them', async () => {
+  const { app, service } = setup();
+  for (const id of ['room-unknown', 'inactive-unknown']) {
+    const missing = await request(app).get(`/resources/${id}`).expect(404);
+    assert.equal(missing.body.error, 'RESOURCE_NOT_FOUND');
+    const patch = await request(app).patch(`/resources/${id}`)
+      .set('Authorization', bearer('c')).send({ name: 'Unexpected creation' }).expect(404);
+    assert.equal(patch.body.error, 'RESOURCE_NOT_FOUND');
+  }
+  service.create({ id: 'room-deleted', name: 'Deleted Room' });
+  await request(app).delete('/resources/room-deleted').set('Authorization', bearer('c')).expect(204);
+  await request(app).get('/resources/room-deleted').expect(404);
+  await request(app).patch('/resources/room-deleted').set('Authorization', bearer('c'))
+    .send({ active: true }).expect(404);
+  assert.equal(service.list().length, 0);
+});
