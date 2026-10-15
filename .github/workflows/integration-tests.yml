@@ -2,9 +2,9 @@ name: Integration Tests (Robot Framework)
 on:
   push:
     branches: [phlu, titan, main]
-    paths: ['member1/**', 'member2/**', 'member3/**', 'member4/**', 'member5/**', 'automation-tests/**', '.github/workflows/integration-tests.yml']
+    paths: ['member1/**', 'member2/**', 'member3/**', 'member4/**', 'member5/**', 'frontend/**', 'automation-tests/**', '.github/workflows/integration-tests.yml']
   pull_request:
-    paths: ['member1/**', 'member2/**', 'member3/**', 'member4/**', 'member5/**', 'automation-tests/**', '.github/workflows/integration-tests.yml']
+    paths: ['member1/**', 'member2/**', 'member3/**', 'member4/**', 'member5/**', 'frontend/**', 'automation-tests/**', '.github/workflows/integration-tests.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -28,3 +28,23 @@ jobs:
       - name: Teardown
         if: always()
         run: docker compose --profile test down
+  # Main user flows through the real web page; separate job so API results stay fast and independent.
+  ui:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: automation-tests
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Robot Framework UI suite (SeleniumLibrary + Chrome) against frontend and all five services
+        run: docker compose --profile ui run --rm --build robot-ui
+      - name: Upload Robot UI report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: robot-ui-results
+          path: automation-tests/results/ui/
+          if-no-files-found: ignore
+      - name: Teardown
+        if: always()
+        run: docker compose --profile ui --profile test down

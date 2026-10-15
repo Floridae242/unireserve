@@ -146,3 +146,59 @@ services:
         condition: service_healthy
       booking-bad-key:
         condition: service_healthy
+  # --- UI tests (profile "ui"): real frontend driven by Chrome through Selenium ---
+  frontend:
+    build: ../frontend
+    profiles: [ui]
+    environment:
+      AUTH_URL: http://auth:3001
+      NOTIFICATION_URL: http://notification:3002
+      RESOURCE_URL: http://resource:3003
+      BOOKING_URL: http://booking:3004
+      REVIEW_URL: http://review:3005
+      COOKIE_SECURE: "false"
+      # Must match the origin Chrome uses, otherwise the frontend rejects form submissions (403).
+      APP_ORIGIN: http://frontend:3000
+    depends_on:
+      auth:
+        condition: service_healthy
+      notification:
+        condition: service_healthy
+      resource:
+        condition: service_healthy
+      booking:
+        condition: service_healthy
+      review:
+        condition: service_healthy
+  selenium:
+    image: selenium/standalone-chromium:152.0-20260909
+    profiles: [ui]
+    shm_size: 2gb
+    environment:
+      # noVNC: watch the browser live at http://localhost:7900 (loopback only, so no password).
+      SE_VNC_NO_PASSWORD: "true"
+    ports:
+      - "127.0.0.1:7900:7900"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:4444/readyz"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  robot-ui:
+    build: .
+    profiles: [ui]
+    command: ["robot", "--outputdir", "results", "ui-suites"]
+    environment:
+      APP_URL: http://frontend:3000
+      SELENIUM_URL: http://selenium:4444
+      AUTH_URL: http://auth:3001
+      RESOURCE_URL: http://resource:3003
+      ADMIN_EMAIL: admin@example.test
+      ADMIN_PASSWORD: robot-only-admin-password
+    volumes:
+      - ./results/ui:/tests/results
+    depends_on:
+      frontend:
+        condition: service_healthy
+      selenium:
+        condition: service_healthy
