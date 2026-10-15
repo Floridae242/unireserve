@@ -50,6 +50,6 @@ CI: [.github/workflows/integration-tests.yml](../.github/workflows/integration-t
 
 - ใช้ dummy users (`robot-xxxx@example.test`) ที่สุ่มใหม่ทุกครั้ง ห้ามใส่ token/credentials จริง
 - `SERVICE_KEY` default เป็นค่า dev; override ผ่าน env ได้
-- Booking ใช้วันที่คงที่ในอนาคต (2030-01-01) และแต่ละเทสต์ใช้ resource id ของตัวเอง จึงไม่ชนกันแม้รันซ้ำ ยกเว้น TS-08 (Review) ที่ต้องจองเวลาจริงอีก ~1 วินาทีแล้ว `Sleep 4s` ให้ booking เป็น COMPLETED
+- Booking ใช้วันที่คงที่ในอนาคต (2030-01-01) และแต่ละเทสต์ใช้ resource id ของตัวเอง จึงไม่ชนกันแม้รันซ้ำ ยกเว้น TS-08 (Review) ที่ต้องจองเวลาจริง (เริ่มอีก 3 วินาที, ลองใหม่ถ้า start เลยไปแล้ว) และ poll จน booking เป็น COMPLETED
 - `ADMIN_EMAIL` / `ADMIN_PASSWORD` ใน compose เป็นค่าสำหรับเทสต์เท่านั้น
 - Auth จำกัด register/login 30 requests/นาที/IP หนึ่งรอบใช้ 9 ครั้ง (admin 1 + user 2 × 2 + `01_auth` 4) ถ้ารันซ้ำติดกันเกิน 3 รอบภายใน 1 นาทีโดยไม่ `down` จะเจอ 429 ใน suite setup

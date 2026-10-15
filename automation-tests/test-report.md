@@ -6,13 +6,13 @@
 
 | Item | Value |
 |---|---|
-| Commit | `0be135e` (branch `phlu`, ต่อจาก `main` `f5cc079`) |
-| วันที่รัน (local) | 2026-10-15 14:08 UTC (21:08 +07) |
+| Commit | `b960dfb` (branch `phlu`, ต่อจาก `main` `f5cc079`) |
+| วันที่รัน (local) | 2026-10-15 14:20 UTC (21:20 +07) |
 | คำสั่ง | `docker compose --profile test run --rm --build robot` บน stack ใหม่ (`down` ก่อนรัน) |
 | Environment | Windows 11, Docker 29.8.2; Robot Framework 7.5, RequestsLibrary 0.9.7, Python 3.12 |
 | Services | **ทั้ง 5 services จริง** build จาก source: member1 Auth, member3 Resource, member2 Notification, member4 Booking, member5 Review — ไม่มี stub แทน service ใด; RF-BOOK-06..08 ใช้ Booking เพิ่ม 3 ตัวต่อกับ Notification ที่เสีย (`stubs/notification-500.js`, ที่อยู่ที่ไม่มี service, SERVICE_KEY ผิด) |
 | ผลรวม | **29 tests, 29 passed, 0 failed, 0 skipped** |
-| CI ยืนยัน | รอผล Integration Tests บน `0be135e` หลัง push — run ล่าสุดบน `main`: [38741034089](https://github.com/Floridae242/unireserve/actions/runs/38741034089) success บน `42ebe3a` |
+| CI ยืนยัน | รอผล Integration Tests บน `b960dfb` หลัง push — run ล่าสุดบน `main`: [38741034089](https://github.com/Floridae242/unireserve/actions/runs/38741034089) success บน `42ebe3a` |
 
 Report ฉบับเต็ม (`report.html`, `log.html`, `output.xml`) อยู่ใน `results/` ตอนรัน local (ไม่ commit) และใน artifact `robot-results` ของ CI
 
@@ -67,6 +67,6 @@ Report ฉบับเต็ม (`report.html`, `log.html`, `output.xml`) อย
 
 - ยังไม่มี Robot test สำหรับ admin flows ของ Booking (closures, admin cancel) — Auth สร้าง admin ได้แล้ว จึงเพิ่มได้
 - Frontend ไม่อยู่ใน Robot suites (ทดสอบด้วย Frontend CI และ `docs/frontend-verification.md`)
-- TS-08 (Review) อาศัยเวลาจริง: จองให้เริ่มอีก ~1 วินาทีแล้ว `Sleep 4s` — ถ้า CI ช้ามากอาจได้ 400 จาก start time ที่กลายเป็นอดีต (ยังไม่เคยเกิด; เป็นความเสี่ยงจากการอ่านโค้ด)
+- TS-08 (Review) ต้องใช้เวลาจริงเพราะ Booking ไม่รับเวลาในอดีต: จองช่วงสั้นที่เริ่มอีก 3 วินาที ถ้า start เลยไปก่อน request ถึง Booking จะคำนวณเวลาใหม่และลองซ้ำ (สูงสุด 3 ครั้ง, log เป็น WARN) แล้ว poll จน status เป็น COMPLETED (timeout 20 วินาที) แทน `Sleep 4s` เดิม — ทดสอบ path ลองซ้ำแล้วโดยบังคับ start เป็นอดีต; suite นี้ใช้เวลาเพิ่ม ~5 วินาที
 - กรณี Notification ตอบ 4xx แล้ว Booking ต้องไม่ retry: Robot นับจำนวนครั้งไม่ได้เพราะ RF-BOOK-08 ใช้ Notification จริง — ครอบคลุมด้วย unit/HTTP tests ของ member4
 - ข้อมูลทุก service อยู่ใน memory: ไม่ได้ทดสอบ persistence หรือหลาย replicas
