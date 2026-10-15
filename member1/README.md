@@ -33,7 +33,7 @@ Node.js 24+; default PORT=3001 และ TOKEN_TTL_SECONDS=3600 (1–86400) ใ�
 | POST | /auth/verify | Authorization: Bearer token | 200 valid, user |
 | GET | /users/:id | Authorization: Bearer token | 200 เฉพาะ user ตัวเอง |
 
-Email normalize trim/lowercase; password 8–128 characters; self-registration ให้ role student เสมอ ยังไม่มี admin provisioning
+Email normalize trim/lowercase; password 8–128 characters; self-registration ให้ role student เสมอ admin provisioning ผ่าน startup environment เท่านั้น
 
 ```bash
 curl -X POST http://localhost:3001/auth/register \
@@ -64,7 +64,7 @@ CI: `.github/workflows/member1-ci.yml` ทำ install → typecheck → tests �
 
 ## ข้อจำกัดของรุ่นทดลอง
 
-Users/sessions อยู่ใน memory และหายเมื่อ restart ไม่มี shared persistence/หลาย replicas; เก็บ password ด้วย salted scrypt และเก็บเฉพาะ token digest ฝั่ง server จำกัด `/auth/register` และ `/auth/login` รวม 30 requests/min/IP; `/auth/verify` ใช้ budget แยก 300 requests/min/IP ด้วย per-process store สำหรับ demo เท่านั้น ก่อนใช้งานจริงต้องมี database, shared rate limiter, HTTPS, session lifecycle และ admin provisioning
+Users/sessions อยู่ใน memory และหายเมื่อ restart ไม่มี shared persistence/หลาย replicas; เก็บ password ด้วย salted scrypt และเก็บเฉพาะ token digest ฝั่ง server จำกัด `/auth/register` และ `/auth/login` รวม 30 requests/min/IP; `/auth/verify` ใช้ budget แยก 300 requests/min/IP ด้วย per-process store สำหรับ demo เท่านั้น ก่อนใช้งานจริงต้องมี database, shared rate limiter, HTTPS, session lifecycle
 
 ## แหล่งอ้างอิงวิชา
 
@@ -83,3 +83,7 @@ Users/sessions อยู่ใน memory และหายเมื่อ resta
 ยังไม่สร้าง/push tag หรือ publish image ต้องยืนยัน release commit และอนุญาต publication ก่อน Package visibility ของ GHCR ต้องตรวจแยกจาก repository visibility
 
 ผลตรวจล่าสุด: [Local verification](verification.md)
+
+## Optional admin
+
+กำหนด `ADMIN_EMAIL` และ `ADMIN_PASSWORD` ทั้งคู่ก่อนเริ่ม service (password 8–128 characters) ไม่มี default credentials บัญชี admin จะสร้างก่อน listen และ login ผ่าน API ปกติ หาก config ไม่ครบหรือผิด service จะหยุดโดยไม่แสดง password ห้าม commit password จริง และ public register ยังเป็น student เสมอ ข้อมูล admin หายเมื่อ restart เช่นเดียวกับ memory storage เดิม

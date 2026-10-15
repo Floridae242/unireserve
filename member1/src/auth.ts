@@ -2,7 +2,7 @@ import { randomBytes, randomUUID, scrypt, createHash, timingSafeEqual } from "no
 import { promisify } from "node:util";
 
 const derive = promisify(scrypt);
-export type PublicUser = { id: string; email: string; role: "student" };
+export type PublicUser = { id: string; email: string; role: "student" | "admin" };
 type User = PublicUser & { salt: string; hash: Buffer };
 export class AuthError extends Error {
   constructor(public status: number, public code: string) { super(code); }
@@ -31,12 +31,18 @@ export class AuthService {
     }
   }
   async register(body: unknown): Promise<PublicUser> {
+    return this.createUser(body, "student");
+  }
+  async provisionAdmin(body: unknown): Promise<PublicUser> {
+    return this.createUser(body, "admin");
+  }
+  private async createUser(body: unknown, role: PublicUser["role"]): Promise<PublicUser> {
     const { email, password } = credentials(body);
     const salt = randomBytes(16).toString("hex");
     const hash = await derive(password, salt, 64) as Buffer;
     // Recheck after async hashing to prevent concurrent duplicate registrations.
     if (this.users.has(email)) throw new AuthError(409, "EMAIL_ALREADY_EXISTS");
-    const user: User = { id: randomUUID(), email, role: "student", salt, hash };
+    const user: User = { id: randomUUID(), email, role, salt, hash };
     this.users.set(email, user);
     return publicUser(user);
   }
@@ -64,4 +70,10 @@ export class AuthService {
     if (!user) throw new AuthError(401, "INVALID_TOKEN");
     return publicUser(user);
   }
+}
+
+export function adminCredentials(env: Record<string, string | undefined>): ReturnType<typeof credentials> | undefined {
+  if (env.ADMIN_EMAIL === undefined && env.ADMIN_PASSWORD === undefined) return undefined;
+  if (env.ADMIN_EMAIL === undefined || env.ADMIN_PASSWORD === undefined) throw new Error("ADMIN_EMAIL and ADMIN_PASSWORD must be configured together");
+  return credentials({ email: env.ADMIN_EMAIL, password: env.ADMIN_PASSWORD });
 }
