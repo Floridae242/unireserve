@@ -4,4 +4,5 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY resources ./resources
 COPY suites ./suites
+COPY ui-suites ./ui-suites
 CMD ["robot", "--outputdir", "results", "suites"]

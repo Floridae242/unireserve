@@ -9,3 +9,8 @@ coverage/
 .venv/
 __pycache__/
 automation-tests/results/
+# Robot Framework output when robot is run outside the compose results/ folder
+automation-tests/**/output.xml
+automation-tests/**/log.html
+automation-tests/**/report.html
+automation-tests/**/selenium-screenshot-*.png
