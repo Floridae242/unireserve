@@ -9,14 +9,10 @@ Suite Setup         Review Should Be Healthy
 *** Test Cases ***
 TS-08 Owner Review Completed Booking
     ${room}=    Unique Id    room
-    ${now}=     Evaluate    int(__import__('time').time())
-    ${start}=   Evaluate    __import__('datetime').datetime.fromtimestamp($now + 1, tz=__import__('datetime').timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
-    ${end}=     Evaluate    __import__('datetime').datetime.fromtimestamp($now + 3, tz=__import__('datetime').timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
-    ${resp}=    Create Booking    ${ALICE}[headers]    ${room}    ${start}    ${end}
-    ${b_id}=    Set Variable    ${resp.json()}[booking][id]
+    ${b_id}=    Create Booking That Ends Soon    ${ALICE}[headers]    ${room}
     Set Suite Variable    ${COMPLETED_BOOKING_ID}    ${b_id}
     Set Suite Variable    ${REVIEWED_ROOM}    ${room}
-    Sleep       4s
+    Wait Until Keyword Succeeds    20s    500ms    Booking Status Should Be    ${b_id}    COMPLETED
     ${rev}=     Create Review    ${ALICE}[headers]    ${b_id}    ${{ 5 }}    comment=Great room!
     Should Be Equal    ${rev.json()}[review][bookingId]    ${b_id}
     Should Be Equal    ${rev.json()}[review][userId]    ${ALICE}[id]
@@ -51,3 +47,28 @@ RF-REV-02 Query Reviews For Resource And User
     # Other user cannot query someone else's user reviews
     ${forbidden}=       List Reviews For User    ${ALICE}[id]    ${BOB}[headers]    expected_status=403
     Should Be Equal     ${forbidden.json()}[error]    FORBIDDEN
+
+
+*** Keywords ***
+Create Booking That Ends Soon
+    [Documentation]    Books a short slot that starts a few seconds from now, so it becomes COMPLETED quickly.
+    ...                Booking rejects a start time in the past, so if a slow request lets the start pass,
+    ...                recompute the times and try again instead of failing on timing.
+    [Arguments]    ${headers}    ${resource_id}
+    Ensure Booking Resource Exists    ${resource_id}
+    FOR    ${attempt}    IN RANGE    3
+        ${start}    ${end}=    Evaluate
+        ...    [datetime.datetime.fromtimestamp(math.ceil(time.time()) + offset, tz=datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ') for offset in (3, 4)]
+        ...    modules=datetime,math,time
+        ${resp}=    POST    ${BOOKING_URL}/bookings    headers=${headers}
+        ...    json=${{ {'resourceId': $resource_id, 'startTime': $start, 'endTime': $end} }}    expected_status=any
+        IF    $resp.status_code == 201    RETURN    ${resp.json()}[booking][id]
+        Should Be Equal    ${resp.json()}[error]    INVALID_TIME_RANGE    msg=Unexpected booking error: ${resp.text}
+        Log    Start time passed before Booking received the request (attempt ${attempt}); retrying    WARN
+    END
+    Fail    Could not create a short booking after 3 attempts
+
+Booking Status Should Be
+    [Arguments]    ${booking_id}    ${status}
+    ${resp}=    Get Booking    ${booking_id}    ${ALICE}[headers]
+    Should Be Equal    ${resp.json()}[booking][status]    ${status}
