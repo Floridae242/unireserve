@@ -96,22 +96,21 @@ export function State({
     );
   return null;
 }
-export function RoomArt({ variant = 0 }: { variant?: number }) {
+export function ResourcePhoto({ resource }: { resource?: Resource }) {
+  const name = resource?.name.toLowerCase() || "";
+  const type = resource?.type.toLowerCase();
+  const photo = type === "lab" ? "computer-lab"
+    : type === "equipment" ? (/projector|โปรเจค|โปรเจ็ก/.test(name) ? "projector" : null)
+    : resource && resource.capacity >= 50 ? "lecture-room" : "meeting-room";
   return (
-    <div className={`room-art art-${variant % 3}`} aria-hidden="true">
-      <div className="art-window" />
-      <div className="art-board" />
-      <div className="art-desk" />
-      <div className="art-chair chair-one" />
-      <div className="art-chair chair-two" />
-      <div className="art-plant" />
-      <span className="art-grid" />
+    <div className="resource-photo">
+      {photo ? <img src={`/images/${photo}.webp`} alt={`ภาพประกอบ${resource ? ` ${resource.name}` : "ห้องประชุม"} จาก Pexels ไม่ใช่สถานที่หรืออุปกรณ์จริง`} />
+        : <Projector size={48} aria-label="ยังไม่มีภาพอุปกรณ์นี้" />}
     </div>
   );
 }
 export function ResourceCard({
   resource,
-  index = 0,
 }: {
   resource: Resource;
   index?: number;
@@ -122,7 +121,7 @@ export function ResourceCard({
       href={`/resources/${encodeURIComponent(resource.id)}`}
     >
       <div className="card-art">
-        <RoomArt variant={index} />
+        <ResourcePhoto resource={resource} />
         <span className={`availability ${resource.active ? "" : "inactive"}`}>
           {resource.active ? "เปิดให้จอง" : "ไม่เปิดให้จอง"}
         </span>

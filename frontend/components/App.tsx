@@ -200,7 +200,7 @@ export default function App() {
         </main>
         <footer>
           UniReserve{" "}
-          <span>พื้นที่สำหรับทุกไอเดีย · เรียนรู้และทำงานร่วมกัน</span>
+          <span>พื้นที่สำหรับทุกไอเดีย · เรียนรู้และทำงานร่วมกัน · <Link href="/photo-credits">เครดิตภาพ</Link></span>
         </footer>
       </div>
     </div>
