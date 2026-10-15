@@ -1,7 +1,6 @@
 *** Settings ***
 Documentation       REQ-AUTH-01 against the running member1 Auth service.
 Resource            ../resources/common.resource
-Suite Setup         Services Should Be Healthy
 
 
 *** Test Cases ***

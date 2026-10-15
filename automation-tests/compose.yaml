@@ -18,12 +18,98 @@ services:
     depends_on:
       auth:
         condition: service_healthy
+  # Temporary stand-in for member3 Resource; replace with build: ../member3 once it exists.
+  resource:
+    image: node:24-alpine
+    command: ["node", "/stub/resource-stub.js"]
+    environment:
+      PORT: 3003
+    volumes:
+      - ./stubs:/stub:ro
+    ports:
+      - "127.0.0.1:3003:3003"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3003/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  booking:
+    build: ../member4
+    environment:
+      PORT: 3004
+      AUTH_URL: http://auth:3001
+      NOTIFICATION_URL: http://notification:3002
+      RESOURCE_URL: http://resource:3003
+      SERVICE_KEY: ${SERVICE_KEY:-local-dev-service-key}
+    ports:
+      - "127.0.0.1:3004:3004"
+    depends_on:
+      auth:
+        condition: service_healthy
+      notification:
+        condition: service_healthy
+      resource:
+        condition: service_healthy
+  # --- Notification failure scenarios (03_booking RF-BOOK-06..08, member4 TS-BOOK-09): extra Booking instances wired to a broken Notification ---
+  notification-500:
+    image: node:24-alpine
+    command: ["node", "/stub/notification-500.js"]
+    environment:
+      PORT: 3002
+    volumes:
+      - ./stubs:/stub:ro
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3002/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  booking-notify-500:
+    build: ../member4
+    environment: &booking-failure-env
+      PORT: 3004
+      AUTH_URL: http://auth:3001
+      NOTIFICATION_URL: http://notification-500:3002
+      RESOURCE_URL: http://resource:3003
+      SERVICE_KEY: ${SERVICE_KEY:-local-dev-service-key}
+    depends_on: &booking-failure-deps
+      auth:
+        condition: service_healthy
+      resource:
+        condition: service_healthy
+      notification-500:
+        condition: service_healthy
+  booking-notify-down:
+    build: ../member4
+    environment:
+      <<: *booking-failure-env
+      # Nothing listens here: every call fails with connection refused, like a stopped Notification.
+      NOTIFICATION_URL: http://127.0.0.1:1
+    depends_on: *booking-failure-deps
+  booking-bad-key:
+    build: ../member4
+    environment:
+      <<: *booking-failure-env
+      NOTIFICATION_URL: http://notification:3002
+      SERVICE_KEY: wrong-service-key-for-tests
+    depends_on:
+      auth:
+        condition: service_healthy
+      resource:
+        condition: service_healthy
+      notification:
+        condition: service_healthy
   robot:
     build: .
     profiles: [test]
     environment:
       AUTH_URL: http://auth:3001
       NOTIFICATION_URL: http://notification:3002
+      RESOURCE_URL: http://resource:3003
+      BOOKING_URL: http://booking:3004
+      BOOKING_NOTIFY_500_URL: http://booking-notify-500:3004
+      BOOKING_NOTIFY_DOWN_URL: http://booking-notify-down:3004
+      BOOKING_BAD_KEY_URL: http://booking-bad-key:3004
+      NOTIFICATION_500_URL: http://notification-500:3002
       SERVICE_KEY: ${SERVICE_KEY:-local-dev-service-key}
     volumes:
       - ./results:/tests/results
@@ -31,4 +117,12 @@ services:
       auth:
         condition: service_healthy
       notification:
+        condition: service_healthy
+      booking:
+        condition: service_healthy
+      booking-notify-500:
+        condition: service_healthy
+      booking-notify-down:
+        condition: service_healthy
+      booking-bad-key:
         condition: service_healthy

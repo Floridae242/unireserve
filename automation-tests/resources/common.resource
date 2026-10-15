@@ -3,11 +3,17 @@ Documentation       Shared variables and API keywords for UniReserve integration
 Library             RequestsLibrary
 Library             String
 Library             Collections
+Library             Parallel.py
 
 
 *** Variables ***
 ${AUTH_URL}             %{AUTH_URL=http://localhost:3001}
 ${NOTIFICATION_URL}     %{NOTIFICATION_URL=http://localhost:3002}
+${BOOKING_URL}          %{BOOKING_URL=http://localhost:3004}
+${BOOKING_NOTIFY_500_URL}     %{BOOKING_NOTIFY_500_URL=http://localhost:3014}
+${BOOKING_NOTIFY_DOWN_URL}    %{BOOKING_NOTIFY_DOWN_URL=http://localhost:3024}
+${BOOKING_BAD_KEY_URL}        %{BOOKING_BAD_KEY_URL=http://localhost:3034}
+${NOTIFICATION_500_URL}       %{NOTIFICATION_500_URL=http://localhost:3012}
 ${SERVICE_KEY}          %{SERVICE_KEY=local-dev-service-key}
 ${PASSWORD}             robot-dummy-password
 ${FAKE_TOKEN}           ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
@@ -73,3 +79,31 @@ Mark Notification Read
     ${resp}=    PATCH    ${NOTIFICATION_URL}/notifications/${notification_id}/read
     ...    headers=${headers}    expected_status=${expected_status}
     RETURN    ${resp}
+
+Booking Should Be Healthy
+    GET    ${BOOKING_URL}/health    expected_status=200
+
+Create Booking
+    [Arguments]    ${headers}    ${resource_id}    ${start}    ${end}    ${expected_status}=201    ${base}=${BOOKING_URL}
+    ${resp}=    POST    ${base}/bookings    headers=${headers}
+    ...    json=${{ {'resourceId': $resource_id, 'startTime': $start, 'endTime': $end} }}
+    ...    expected_status=${expected_status}
+    RETURN    ${resp}
+
+Get Booking
+    [Arguments]    ${booking_id}    ${headers}    ${expected_status}=200    ${base}=${BOOKING_URL}
+    ${resp}=    GET    ${base}/bookings/${booking_id}    headers=${headers}    expected_status=${expected_status}
+    RETURN    ${resp}
+
+Cancel Booking
+    [Arguments]    ${booking_id}    ${headers}    ${expected_status}=200    ${base}=${BOOKING_URL}
+    ${resp}=    PATCH    ${base}/bookings/${booking_id}/cancel    headers=${headers}
+    ...    expected_status=${expected_status}
+    RETURN    ${resp}
+
+Notification Types For Booking
+    [Documentation]    Returns the notification types the user has for one booking, e.g. ['BOOKING_CREATED'].
+    [Arguments]    ${user}    ${booking_id}
+    ${list}=    List Notifications    ${user}[id]    ${user}[headers]
+    ${types}=    Evaluate    sorted([n['type'] for n in $list.json()['notifications'] if n['bookingId'] == $booking_id])
+    RETURN    ${types}

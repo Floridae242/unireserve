@@ -1,8 +1,7 @@
 *** Settings ***
-Documentation       REQ-NOTI-01 across Auth -> Notification. Booking is not implemented yet,
-...                 so the suite plays Booking's role by calling POST /notifications with the service key.
+Documentation       REQ-NOTI-01 Notification API directly. The suite plays an internal service by calling
+...                 POST /notifications with the service key; the real Booking -> Notification flow is in 03_booking.
 Resource            ../resources/common.resource
-Suite Setup         Prepare Users
 
 
 *** Test Cases ***
@@ -49,12 +48,3 @@ RF-NOTI-05 Only Internal Services Can Create Notifications
     Create Notification    ${ALICE}[id]    ${booking_id}    headers=${ALICE}[headers]    expected_status=401
     ${wrong}=    Set Variable    ${{ {'X-Service-Key': 'wrong-service-key-123'} }}
     Create Notification    ${ALICE}[id]    ${booking_id}    headers=${wrong}    expected_status=401
-
-
-*** Keywords ***
-Prepare Users
-    Services Should Be Healthy
-    ${alice}=    Create Logged In User
-    ${bob}=    Create Logged In User
-    Set Suite Variable    ${ALICE}    ${alice}
-    Set Suite Variable    ${BOB}    ${bob}
