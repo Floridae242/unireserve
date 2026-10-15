@@ -5,6 +5,8 @@ services:
     environment:
       PORT: 3001
       TOKEN_TTL_SECONDS: 3600
+      ADMIN_EMAIL: admin@example.test
+      ADMIN_PASSWORD: robot-only-admin-password
     ports:
       - "127.0.0.1:3001:3001"
   notification:
@@ -18,16 +20,16 @@ services:
     depends_on:
       auth:
         condition: service_healthy
-  # Temporary stand-in for member3 Resource; replace with build: ../member3 once it exists.
   resource:
-    image: node:24-alpine
-    command: ["node", "/stub/resource-stub.js"]
+    build: ../member3
     environment:
       PORT: 3003
-    volumes:
-      - ./stubs:/stub:ro
+      AUTH_URL: http://auth:3001
     ports:
       - "127.0.0.1:3003:3003"
+    depends_on:
+      auth:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3003/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
       interval: 5s
@@ -49,6 +51,19 @@ services:
       notification:
         condition: service_healthy
       resource:
+        condition: service_healthy
+  review:
+    build: ../member5
+    environment:
+      PORT: 3005
+      AUTH_URL: http://auth:3001
+      BOOKING_URL: http://booking:3004
+    ports:
+      - "127.0.0.1:3005:3005"
+    depends_on:
+      auth:
+        condition: service_healthy
+      booking:
         condition: service_healthy
   # --- Notification failure scenarios (03_booking RF-BOOK-06..08, member4 TS-BOOK-09): extra Booking instances wired to a broken Notification ---
   notification-500:
@@ -102,6 +117,8 @@ services:
     build: .
     profiles: [test]
     environment:
+      ADMIN_EMAIL: admin@example.test
+      ADMIN_PASSWORD: robot-only-admin-password
       AUTH_URL: http://auth:3001
       NOTIFICATION_URL: http://notification:3002
       RESOURCE_URL: http://resource:3003
@@ -110,6 +127,7 @@ services:
       BOOKING_NOTIFY_DOWN_URL: http://booking-notify-down:3004
       BOOKING_BAD_KEY_URL: http://booking-bad-key:3004
       NOTIFICATION_500_URL: http://notification-500:3002
+      REVIEW_URL: http://review:3005
       SERVICE_KEY: ${SERVICE_KEY:-local-dev-service-key}
     volumes:
       - ./results:/tests/results
@@ -119,6 +137,8 @@ services:
       notification:
         condition: service_healthy
       booking:
+        condition: service_healthy
+      review:
         condition: service_healthy
       booking-notify-500:
         condition: service_healthy

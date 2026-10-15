@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation       REQ-BOOK-01, REQ-BOOK-02 and REQ-NOTI-01 across Auth -> Resource -> Booking -> Notification.
-...                 Resource is a stub (automation-tests/stubs) until member3 ships; each test uses its own
+...                 Resource fixtures are created through the real admin API; each test uses its own
 ...                 resource id so time slots never collide between tests or repeated runs.
 ...                 RF-BOOK-06..08 (TS-BOOK-09) use extra Booking instances from compose.yaml wired to a failing,
 ...                 unreachable or misconfigured Notification: the booking must still be saved.
@@ -47,6 +47,7 @@ TS-07 Start Not Before End Returns 400
 
 RF-BOOK-01 Concurrent Requests For One Slot Have A Single Winner
     ${room}=    Unique Id    room
+    Ensure Booking Resource Exists    ${room}
     ${codes}=    Post In Parallel    ${BOOKING_URL}/bookings
     ...    ${{ {'resourceId': $room, 'startTime': $T09, 'endTime': $T10} }}    ${ALICE}[headers]    count=4
     Should Be Equal    ${{ sorted($codes) }}    ${{ [201, 409, 409, 409] }}

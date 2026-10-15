@@ -10,7 +10,7 @@ docker compose --profile test run --rm --build robot
 docker compose --profile test down
 ```
 
-คำสั่งแรก build และเปิด Auth (member1), Notification (member2), Booking (member4), Resource stub และ Booking อีก 3 ตัวสำหรับกรณี Notification ล่ม รอจน healthy แล้วรัน suites ใน container `robot` exit code ≠ 0 เมื่อมีเทสต์ไม่ผ่าน ผลอยู่ที่ `results/report.html` และ `results/log.html` (ไม่ commit)
+คำสั่งแรก build และเปิด Auth (member1), Notification (member2), Booking (member4), Review (member5), Resource stub และ Booking อีก 3 ตัวสำหรับกรณี Notification ล่ม รอจน healthy แล้วรัน suites ใน container `robot` exit code ≠ 0 เมื่อมีเทสต์ไม่ผ่าน ผลอยู่ที่ `results/report.html` และ `results/log.html` (ไม่ commit)
 
 CI: [.github/workflows/integration-tests.yml](../.github/workflows/integration-tests.yml) รันคำสั่งเดียวกันและแนบ `robot-results` เป็น artifact
 
@@ -24,12 +24,13 @@ CI: [.github/workflows/integration-tests.yml](../.github/workflows/integration-t
 | `stubs/resource-stub.js` | **Resource ชั่วคราว** แทน member3 ตาม contract ที่ Booking ใช้ (`GET /resources/:id`): id ขึ้นต้น `missing-` → 404, `inactive-` → inactive, อื่น ๆ → active |
 | `stubs/notification-500.js` | Notification ที่ตอบ 500 เสมอและนับจำนวนครั้งที่ถูกเรียก (`GET /calls`) ใช้ทดสอบ retry ของ Booking |
 | `Dockerfile`, `requirements.txt` | image สำหรับรัน Robot (pin version) |
-| `resources/common.resource` | ตัวแปร URL/key จาก env และ keywords เช่น `Create Logged In User`, `Create Notification`, `Create Booking` |
+| `resources/common.resource` | ตัวแปร URL/key จาก env และ keywords เช่น `Create Logged In User`, `Create Notification`, `Create Booking`, `Create Review` |
 | `resources/Parallel.py` | keyword `Post In Parallel` สำหรับยิง request พร้อมกัน |
 | `suites/__init__.robot` | สร้าง user ทดสอบ `${ALICE}`, `${BOB}` ครั้งเดียวให้ทุก suite |
 | `suites/01_auth.robot` | TS-01, TS-02, RF-AUTH-01 |
 | `suites/02_notification.robot` | Notification API โดยตรง: RF-NOTI-01..05 และส่วน notification ของ TS-04 |
 | `suites/03_booking.robot` | Auth → Resource → Booking → Notification: TS-04..07, RF-BOOK-01..05; Notification ล่ม RF-BOOK-06..08 ใช้ Booking แยก 3 ตัวใน compose (`booking-notify-500`, `booking-notify-down`, `booking-bad-key`) |
+| `suites/04_review.robot` | Auth → Booking → Review: TS-08..10, RF-REV-01..02 |
 
 ## Coverage เทียบ docs/test-spec.md
 
@@ -39,8 +40,8 @@ CI: [.github/workflows/integration-tests.yml](../.github/workflows/integration-t
 | TS-04, TS-05, TS-06, TS-07 | ✅ automated (Resource เป็น stub) |
 | Concurrent booking (integration) | ✅ RF-BOOK-01: ยิง 4 requests พร้อมกัน ได้ 201 หนึ่งรายการ ที่เหลือ 409 |
 | Notification ล่ม (member4 TS-BOOK-09) | ✅ RF-BOOK-06..08: 500 → retry 1 ครั้ง, ต่อไม่ได้, SERVICE_KEY ไม่ตรง → booking ยัง 201 และ `notificationSent: false` |
+| TS-08, TS-09, TS-10 | ✅ automated (member5 Review) |
 | TS-03 | ⏳ รอ member3 Resource |
-| TS-08..10 | ⏳ รอ member5 Review |
 | Admin flows (closures, admin cancel) | ⏳ รอ Auth มีวิธีสร้าง admin |
 
 เมื่อ member3 พร้อม: เปลี่ยน service `resource` ใน `compose.yaml` เป็น `build: ../member3`, seed resource ตามที่ suite ต้องการ แล้วเพิ่ม suite TS-03 เมื่อ service อื่นพร้อม: เพิ่มใน `compose.yaml`, URL ใน `common.resource` และ suite ใหม่ใน `suites/`

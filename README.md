@@ -4,7 +4,7 @@ Campus Room & Equipment Booking Platform — โครงสร้างเร�
 
 ## สถานะ
 
-บน branch `Tle` มี Authentication Service ของ member1 พร้อม API, tests, Docker และ CI definition แล้ว ดู [member1 README](member1/README.md) ส่วน member2–5 ยังเป็น scaffold ยังไม่มี group integration หรือ registry release
+Authentication Service (member1), Notification Service (member2), Booking Service (member4) และ Review Service (member5) พร้อมใช้งาน มี API, tests, Dockerfile และ CI definition เรียบร้อยแล้ว ดู README ในโฟลเดอร์ของแต่ละ member ส่วน member3 (Resource) อยู่ระหว่างพัฒนา โดย integration tests ใช้ resource-stub แทนชั่วคราว
 
 ## เป้าหมาย MVP
 
@@ -62,7 +62,7 @@ unireserve/
 5. เพิ่ม Robot Framework integration tests และ GitHub Actions
 6. ตรวจทุกขั้นแล้วจึง publish images และ release
 
-สำหรับ member1 ใช้ `cd member1`, `npm ci`, `npm test`, `npm run dev` ส่วน service อื่นยังไม่มีคำสั่ง runtime
+สำหรับแต่ละ service ที่เสร็จแล้ว (member1, member2, member4, member5) ใช้ `cd memberN`, `npm ci`, `npm test`, `npm run dev` ส่วน member3 อยู่ระหว่างพัฒนา
 
 ## ขอบเขตและแหล่งข้อมูล
 
