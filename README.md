@@ -4,7 +4,7 @@ Campus Room & Equipment Booking Platform — โครงสร้างเร�
 
 ## สถานะ
 
-Authentication Service (member1), Notification Service (member2), Booking Service (member4) และ Review Service (member5) พร้อมใช้งาน มี API, tests, Dockerfile และ CI definition เรียบร้อยแล้ว ดู README ในโฟลเดอร์ของแต่ละ member ส่วน member3 (Resource) อยู่ระหว่างพัฒนา โดย integration tests ใช้ resource-stub แทนชั่วคราว
+ครบทั้ง 5 services — Authentication (member1), Notification (member2), Resource (member3), Booking (member4) และ Review (member5) — มี API, tests, Dockerfile และ CI ดู README ในโฟลเดอร์ของแต่ละ member; integration tests ข้ามทุก service อยู่ใน [automation-tests/](automation-tests/README.md) และใช้ service จริงทั้งหมด (ไม่มี stub แทน service ใด)
 
 ## เป้าหมาย MVP
 
