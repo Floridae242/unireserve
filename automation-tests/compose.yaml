@@ -18,16 +18,16 @@ services:
     depends_on:
       auth:
         condition: service_healthy
-  # Temporary stand-in for member3 Resource; replace with build: ../member3 once it exists.
   resource:
-    image: node:24-alpine
-    command: ["node", "/stub/resource-stub.js"]
+    build: ../member3
     environment:
       PORT: 3003
-    volumes:
-      - ./stubs:/stub:ro
+      AUTH_URL: http://auth:3001
     ports:
       - "127.0.0.1:3003:3003"
+    depends_on:
+      auth:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3003/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
       interval: 5s

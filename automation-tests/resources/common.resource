@@ -9,6 +9,7 @@ Library             Parallel.py
 *** Variables ***
 ${AUTH_URL}             %{AUTH_URL=http://localhost:3001}
 ${NOTIFICATION_URL}     %{NOTIFICATION_URL=http://localhost:3002}
+${RESOURCE_URL}         %{RESOURCE_URL=http://localhost:3003}
 ${BOOKING_URL}          %{BOOKING_URL=http://localhost:3004}
 ${BOOKING_NOTIFY_500_URL}     %{BOOKING_NOTIFY_500_URL=http://localhost:3014}
 ${BOOKING_NOTIFY_DOWN_URL}    %{BOOKING_NOTIFY_DOWN_URL=http://localhost:3024}
@@ -107,3 +108,20 @@ Notification Types For Booking
     ${list}=    List Notifications    ${user}[id]    ${user}[headers]
     ${types}=    Evaluate    sorted([n['type'] for n in $list.json()['notifications'] if n['bookingId'] == $booking_id])
     RETURN    ${types}
+
+Get Resource
+    [Arguments]    ${resource_id}    ${expected_status}=200
+    ${resp}=    GET    ${RESOURCE_URL}/resources/${resource_id}    expected_status=${expected_status}
+    RETURN    ${resp}
+
+List Resources
+    [Arguments]    ${headers}=${None}    ${active}=${None}    ${type}=${None}    ${expected_status}=200
+    ${params}=    Create Dictionary
+    IF    $active is not None    Set To Dictionary    ${params}    active=${active}
+    IF    $type is not None    Set To Dictionary    ${params}    type=${type}
+    IF    $headers is None
+        ${resp}=    GET    ${RESOURCE_URL}/resources    params=${params}    expected_status=${expected_status}
+    ELSE
+        ${resp}=    GET    ${RESOURCE_URL}/resources    headers=${headers}    params=${params}    expected_status=${expected_status}
+    END
+    RETURN    ${resp}

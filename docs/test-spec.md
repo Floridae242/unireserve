@@ -6,7 +6,7 @@
 |---|---|---|---|---|---|
 | TS-01 | REQ-AUTH-01 | seeded user login ด้วย password ถูก | 200 และ token | `01_auth` TS-01 | ✅ PASS |
 | TS-02 | REQ-AUTH-01 | login password ผิด | 401 ไม่มี token | `01_auth` TS-02 | ✅ PASS |
-| TS-03 | REQ-RES-01 | seed active/inactive resources แล้ว list | เห็นเฉพาะ active | — | ⏳ ยังไม่ execute: รอ member3 Resource |
+| TS-03 | REQ-RES-01 | seed active/inactive resources แล้ว list | เห็นเฉพาะ active | `02_resource` TS-03 | ✅ PASS |
 | TS-04 | REQ-BOOK-01, REQ-NOTI-01 | login แล้วจองช่วงว่าง | 201 และ notification ตรง booking/user | `03_booking` TS-04 | ✅ PASS (Resource = stub) |
 | TS-05 | REQ-BOOK-02 | จองทับ booking เดิม | 409 BOOKING_TIME_CONFLICT | `03_booking` TS-05 | ✅ PASS (Resource = stub) |
 | TS-06 | REQ-BOOK-02 | จองเริ่มตรง end ของรายการเดิม | 201 | `03_booking` TS-06 | ✅ PASS (Resource = stub) |
